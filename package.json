@@ -17,9 +17,5 @@
   "homepage": "https://github.com/philschatz/probot-project#readme",
   "dependencies": {
     "probot-config": "^0.1.0"
-  },
-  "devDependencies": {
-    "probot": "^5.0.0",
-    "smee-client": "^1.0.1"
   }
 }
