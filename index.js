@@ -7,12 +7,12 @@ const PROJECT_REPOSITORY = 'REPOSITORY'
 const PROJECT_ORGANIZATION = 'ORGANIZATION'
 
 function findColumnId (columnKey, config, columns) {
-  const {index, name} = config.project.columns[columnKey]
+  const {index, name} = config.project[columnKey]
   let column
   if (typeof index !== 'undefined') {
     column = columns[index]
   } else if (name) {
-    column = columns.filter((column) => column.name === name)[0]
+    column = columns.filter((column) => column.name.toLowerCase() === name.toLowerCase())[0]
   }
   if (column) {
     return column.id
