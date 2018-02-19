@@ -21,3 +21,8 @@ project:
 
 When combined with [GitHub's Project Automation feature](https://github.com/blog/2458-keep-your-project-boards-up-to-date-automatically)
 you can just look at your Project Board and no longer need to look through individual repositories to see the state of your project.
+
+
+# Screencap of adding an Issue to a Project
+
+![](https://user-images.githubusercontent.com/253202/36290898-ef958b26-1295-11e8-9baf-6209d1f0aef2.gif)
