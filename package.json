@@ -1,5 +1,5 @@
 {
-  "name": "probot-projects",
+  "name": "project-bot",
   "version": "1.0.1",
   "description": "Add new Issues and PullRequests to a GitHub Project Board",
   "main": "index.js",
@@ -8,13 +8,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/philschatz/probot-project.git"
+    "url": "git+https://github.com/philschatz/project-bot.git"
   },
   "author": "Philip Schatz",
   "bugs": {
-    "url": "https://github.com/philschatz/probot-project/issues"
+    "url": "https://github.com/philschatz/project-bot/issues"
   },
-  "homepage": "https://github.com/philschatz/probot-project#readme",
+  "homepage": "https://github.com/philschatz/project-bot#readme",
+  "now": {
+    "alias": "project-bot",
+    "dotenv": ".env"
+  },
   "dependencies": {
     "probot-config": "^0.1.0"
   },
