@@ -17,5 +17,8 @@
   "homepage": "https://github.com/philschatz/probot-project#readme",
   "dependencies": {
     "probot-config": "^0.1.0"
+  },
+  "devDependencies": {
+    "probot": "^5.0.1"
   }
 }
