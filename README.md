@@ -3,7 +3,7 @@
 Do you like the idea of [GitHub's Project Automation feature](https://github.com/blog/2458-keep-your-project-boards-up-to-date-automatically)
 but find it lacking?
 
-This probot will automatically add new Issues or Pull Requests to a Project board.
+GitHub's Project Automation feature will add a new Issue or Pull Request once you have manually assigned it to a Project. This bot will **automatically** add new Issues or Pull Requests to a Project board based on the configuration in `/.github/config.yml`. Also, for organizations that have multiple repositories, this bot uses [getsentry/probot-config](https://github.com/getsentry/probot-config) so you do not have to copy/paste the config into each repository.
 
 
 ```yaml
@@ -21,3 +21,8 @@ project:
 
 When combined with [GitHub's Project Automation feature](https://github.com/blog/2458-keep-your-project-boards-up-to-date-automatically)
 you can just look at your Project Board and no longer need to look through individual repositories to see the state of your project.
+
+
+# Screencap of adding an Issue to a Project
+
+![](https://user-images.githubusercontent.com/253202/36290898-ef958b26-1295-11e8-9baf-6209d1f0aef2.gif)
