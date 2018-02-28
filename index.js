@@ -21,7 +21,7 @@ function findColumnId (columnKey, config, columns) {
   }
 }
 
-module.exports = (robot) => {
+module.exports = (robot, defaultConfig) => {
   robot.on('issues.opened', curried('Issue', COLUMN_NEW_ISSUE))
   robot.on('pull_request.opened', curried('PullRequest', COLUMN_NEW_PULL_REQUEST))
 
@@ -47,7 +47,7 @@ module.exports = (robot) => {
 
   async function putCardInColumn (issueType, columnType, context, issueId, issueUrl) {
     const {payload, github} = context
-    const config = await getConfig(context, 'config.yml')
+    const config = (await getConfig(context, 'config.yml')) || defaultConfig
     let projectId
     let columns
     let newIssueColumnId
