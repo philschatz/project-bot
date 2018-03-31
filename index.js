@@ -198,7 +198,7 @@ module.exports = (robot) => {
           }
           // Try splitting up the text (backwards-compatibility)
           if (args.length === 0 && node.next && node.next.literal) {
-            args = node.next.literal.split(' ').map((arg) => arg.trim())
+            args = node.next.literal.trim().split(' ').map((arg) => arg.trim())
           }
 
           logger.info(`Detected Automation Rule: ${node.literal} with args=${JSON.stringify(args)} on Card ${projectCard.url}`)
