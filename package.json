@@ -20,9 +20,7 @@
     "dotenv": ".env"
   },
   "dependencies": {
-    "probot-config": "^0.1.0"
-  },
-  "devDependencies": {
-    "probot": "^5.0.1"
+    "commonmark": "^0.28.1",
+    "probot": "^6.1.0"
   }
 }
