@@ -18,8 +18,8 @@ To create an Automation Rule, create a Card in a Project like this:
 
 - `assigned_issue`
 - `closed_issue`
-- `added_label` wontfix
-- `new_pullrequest` foo-bar test
+- `added_label` **wontfix**
+- `new_pullrequest` **foo-bar** **test**
 ```
 
 Now, whenever any Issue that is assigned, or closed, or a `wontfix` label is added, or a new Pull Request is opened will show up in this Column.
