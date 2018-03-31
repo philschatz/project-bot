@@ -198,9 +198,9 @@ module.exports = (robot) => {
           }
           // Try splitting up the text (backwards-compatibility)
           if (args.length === 0 && node.next && node.next.literal) {
-            args = node.next.literal.split()
+            args = node.next.literal.split(' ').map((arg) => arg.trim())
           }
-          
+
           logger.info(`Detected Automation Rule: ${node.literal} with args=${JSON.stringify(args)} on Card ${projectCard.url}`)
           AUTOMATION_CARDS[projectId].push({
             cardId: projectCard.id, // Store the cardId so we can update it if the card is edited
