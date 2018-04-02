@@ -7,6 +7,14 @@ GitHub's Project Automation feature will add a new Issue or Pull Request once yo
 
 It also allows you to customize the rules for moving Issues between Columns.
 
+
+# Installation
+
+Go to [The project-bot App homepage](https://github.com/apps/project-bot) and click `[Configure]` to have it run on **Public** Project Boards.
+
+To see what it looks like, you can look at the [Projects for this Repository](https://github.com/philschatz/project-bot/projects).
+
+
 # Example Automation Card
 
 To create an Automation Rule, create a Card in a Project like this:
