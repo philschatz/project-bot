@@ -131,19 +131,19 @@ const AUTOMATION_COMMANDS = [
   }
 ]
 
-async function sleep(ms) {
+async function sleep (ms) {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve()
     }, ms)
   })
 }
-async function retryQuery(context, query, args) {
+async function retryQuery (context, query, args) {
   try {
     return await context.github.query(query, args)
   } catch (err) {
     await sleep(1000)
-    return await context.github.query(query, args)
+    return context.github.query(query, args)
   }
 }
 
@@ -151,8 +151,6 @@ module.exports = (robot) => {
   const logger = robot.log.child({name: 'project-bot'})
   robot.events.setMaxListeners(Math.max(robot.events.getMaxListeners(), 20)) // Since we register at least 19 listeners
   logger.info(`Starting up`)
-
-  const AUTOMATION_CARDS = {} // Derived from parsing the *magic* "Automation Rules" cards. Key is "{projectId}" and value is [{columnId, ruleName, ruleArgs}]
 
   function parseMarkdown (card) {
     if (!card.note) {
@@ -190,8 +188,7 @@ module.exports = (robot) => {
     return parsedRules
   }
 
-
-  function extractAutomationRules(ruleName, projects, issueCard) {
+  function extractAutomationRules (ruleName, projects, issueCard) {
     const automationRules = []
 
     const allCards = new Map()
@@ -223,17 +220,11 @@ module.exports = (robot) => {
     logger.trace(`Attaching listener for ${webhookName}`)
     robot.on(webhookName, async function (context) {
       let issueUrl
-      let issueId
-      let issueType
       logger.trace(`Event received for ${webhookName}`)
       if (context.payload.issue) {
         issueUrl = context.payload.issue.html_url
-        issueId = context.payload.issue.id
-        issueType = 'Issue'
       } else {
         issueUrl = context.payload.pull_request.html_url
-        issueId = context.payload.pull_request.id
-        issueType = 'PullRequest'
       }
 
       if (createsACard) {
@@ -322,7 +313,6 @@ module.exports = (robot) => {
             }
           }
         }
-
       } else {
         // Check if we need to move the Issue (or Pull request)
         const graphResult = await retryQuery(context, `
