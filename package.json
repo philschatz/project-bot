@@ -25,6 +25,7 @@
     "probot": "^6.1.0"
   },
   "devDependencies": {
+    "smee-client": "^1.0.1",
     "standard": "^11.0.1"
   }
 }

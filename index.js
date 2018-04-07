@@ -146,15 +146,10 @@ module.exports = (robot) => {
     const walker = root.walker()
     const parsedRules = new Map()
     let walkEvent
-    let hasMagicTitle = false
     while ((walkEvent = walker.next())) {
       const {node} = walkEvent
-      if (walkEvent.entering && node.type === 'text' && node.parent.type === 'heading' && node.literal.trim() === 'Automation Rules') {
-        logger.debug(`Card Does have the Magic "Automation Rules" text`)
-        hasMagicTitle = true
-      }
       // Each item should be simple text that contains the rule, followed by a space, followed by any arguments (sometimes wrapped in spaces)
-      if (hasMagicTitle && walkEvent.entering && node.type === 'code') {
+      if (walkEvent.entering && node.type === 'code') {
         logger.debug(`Found a code block in the Card (looks promising...)`)
         if (node.parent.type === 'paragraph' && node.parent.parent.type === 'item') {
           let args = []
@@ -188,11 +183,11 @@ module.exports = (robot) => {
       let issueType
       logger.trace(`Event received for ${webhookName}`)
       if (context.payload.issue) {
-        issueUrl = context.payload.issue.url
+        issueUrl = context.payload.issue.html_url
         issueId = context.payload.issue.id
         issueType = 'Issue'
       } else {
-        issueUrl = context.payload.pull_request.issue_url
+        issueUrl = context.payload.pull_request.html_url
         issueId = context.payload.pull_request.id
         issueType = 'PullRequest'
       }
@@ -280,7 +275,7 @@ module.exports = (robot) => {
         })
       } else {
         // Check if we need to move the Issue (or Pull request)
-        const {data, errors} = await context.github.query(`
+        const graphResult = await context.github.query(`
           query getCardAndColumnAutomationCards($url: URI!) {
             resource(url: $url) {
               ... on Issue {
@@ -300,7 +295,7 @@ module.exports = (robot) => {
                         nodes {
                           id
                           url
-                          firstCard: cards(first: 1) {
+                          firstCards: cards(first: 1) {
                             totalCount
                             nodes {
                               url
@@ -308,7 +303,7 @@ module.exports = (robot) => {
                               note
                             }
                           }
-                          lastCard: cards(last: 1) {
+                          lastCards: cards(last: 1) {
                             totalCount
                             nodes {
                               url
@@ -325,10 +320,11 @@ module.exports = (robot) => {
             }
           }
         `, {url: issueUrl})
+        const {resource, errors} = graphResult
         if (errors) {
           return logger.error(errors)
         }
-        const cardsForIssue = data.resource.projectCard.nodes
+        const cardsForIssue = resource.projectCards.nodes
 
         for (const issueCard of cardsForIssue) {
           const automationRules = []
@@ -337,8 +333,8 @@ module.exports = (robot) => {
               return // Skip because the Card is already in the Column
             }
             let cardsToParse = []
-            if (column.firstCard) { cardsToParse = cardsToParse.concat(column.firstCard.nodes) }
-            if (column.lastCard) { cardsToParse = cardsToParse.concat(column.lastCard.nodes) }
+            if (column.firstCards) { cardsToParse = cardsToParse.concat(column.firstCards.nodes) }
+            if (column.lastCards) { cardsToParse = cardsToParse.concat(column.lastCards.nodes) }
 
             cardsToParse.forEach((card) => {
               const rules = parseMarkdown(card)
