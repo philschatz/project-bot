@@ -131,6 +131,22 @@ const AUTOMATION_COMMANDS = [
   }
 ]
 
+async function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
+}
+async function retryQuery(context, query, args) {
+  try {
+    return await context.github.query(query, args)
+  } catch (err) {
+    await sleep(1000)
+    return await context.github.query(query, args)
+  }
+}
+
 module.exports = (robot) => {
   const logger = robot.log.child({name: 'project-bot'})
   robot.events.setMaxListeners(Math.max(robot.events.getMaxListeners(), 20)) // Since we register at least 19 listeners
@@ -174,6 +190,34 @@ module.exports = (robot) => {
     return parsedRules
   }
 
+
+  function extractAutomationRules(ruleName, projects, issueCard) {
+    const automationRules = []
+
+    const allCards = new Map()
+    projects.forEach((project) => {
+      project.columns.nodes.forEach((column) => {
+        column.firstCards.nodes.forEach((card) => {
+          allCards.set(card.id, {card, column})
+        })
+        column.lastCards.nodes.forEach((card) => {
+          allCards.set(card.id, {card, column})
+        })
+      })
+    })
+
+    allCards.forEach(({card, column}) => {
+      const rules = parseMarkdown(card)
+      if (rules.get(ruleName)) {
+        automationRules.push({
+          column: column,
+          ruleArgs: rules.get(ruleName)
+        })
+      }
+    })
+    return automationRules
+  }
+
   // Register all of the automation commands
   AUTOMATION_COMMANDS.forEach(({createsACard, webhookName, ruleName, ruleMatcher}) => {
     logger.trace(`Attaching listener for ${webhookName}`)
@@ -193,89 +237,95 @@ module.exports = (robot) => {
       }
 
       if (createsACard) {
+        const graphResult = await retryQuery(context, `
+          query getAllProjectCards($issueUrl: URI!) {
+            resource(url: $issueUrl) {
+              ... on Issue {
+                id
+                repository {
+                  owner {
+                    url
+                    ... on Organization {
+                      projects(first: 10, states: [OPEN]) {
+                        nodes {
+                          columns(first: 10) {
+                            nodes {
+                              id
+                              firstCards: cards(first: 1) {
+                                nodes {
+                                  note
+                                }
+                              }
+                              lastCards: cards(last: 1) {
+                                nodes {
+                                  note
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  projects(first: 10, states: [OPEN]) {
+                    nodes {
+                      name
+                      columns(first: 10) {
+                        nodes {
+                          id
+                          name
+                          firstCards: cards(first: 1) {
+                            nodes {
+                              id
+                              note
+                            }
+                          }
+                          lastCards: cards(last: 1) {
+                            nodes {
+                              id
+                              note
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `, {issueUrl: issueUrl})
+        const {resource} = graphResult
         // Loop through all of the Automation Cards and see if any match
-        // query getAllProjectCards($issueUrl: URI!) {
-        //   resource(url: $issueUrl) {
-        //     ... on Issue {
-        //       repository {
-        //         owner {
-        //           url
-        //           ... on Organization {
-        //             projects(first: 10, states: [OPEN]) {
-        //               nodes {
-        //                 columns(first: 10) {
-        //                   nodes {
-        //                     id
-        //                     firstCards: cards(first: 1) {
-        //                       nodes {
-        //                         id
-        //                         note
-        //                       }
-        //                     }
-        //                     lastCards: cards(first: 1) {
-        //                       nodes {
-        //                         id
-        //                         note
-        //                       }
-        //                     }
-        //                   }
-        //                 }
-        //               }
-        //             }
-        //           }
-        //         }
-        //         projects(first: 10, states: [OPEN]) {
-        //           nodes {
-        //             columns(first: 10) {
-        //               nodes {
-        //                 firstCards: cards(first: 1) {
-        //                   nodes {
-        //                     id
-        //                     note
-        //                   }
-        //                 }
-        //                 lastCards: cards(first: 1) {
-        //                   nodes {
-        //                     id
-        //                     note
-        //                   }
-        //                 }
-        //               }
-        //             }
-        //           }
-        //         }
-        //       }
-        //     }
-        //   }
-        // }
+        let allProjects = []
+        if (resource.repository.owner.projects) {
+          allProjects = allProjects.concat(resource.repository.owner.projects.nodes)
+        }
+        if (resource.repository.projects) {
+          allProjects = allProjects.concat(resource.repository.projects.nodes)
+        }
 
-        Object.entries(AUTOMATION_CARDS).forEach(async ([projectId, cardInfos]) => {
-          cardInfos.forEach(async ({ruleName: rn, columnId, ruleArgs, ownerUrl}) => {
-            // Check if the AUTOMATION_CARD's owner matches this Issue's owner
-            // Org Projects have a api.github.com/orgs/{org_name} format
-            // while a Repository has an api.github.com/users/{org_name} format
-            // so we need to look at a different field to see if they match.
-            if (context.payload.organization) {
-              if (!ownerUrl === context.payload.organization.url) {
-                return
+        const automationRules = extractAutomationRules(ruleName, allProjects)
+
+        for (const {column, ruleArgs} of automationRules) {
+          if (await ruleMatcher(logger, context, ruleArgs)) {
+            logger.info(`Creating Card for "${issueUrl}" to column ${column.id} because of "${ruleName}" and value: "${ruleArgs}"`)
+            const {errors} = await context.github.query(`
+              mutation createCard($contentId: ID!, $columnId: ID!) {
+                addProjectCard(input: {contentId: $contentId, projectColumnId: $columnId}) {
+                  clientMutationId
+                }
               }
-            } else {
-              if (!ownerUrl === context.payload.repository.owner.url) {
-                return
-              }
+            `, {contentId: resource.id, columnId: column.id})
+            if (errors) {
+              return logger.error(errors)
             }
-            if (ruleName === rn) {
-              if (await ruleMatcher(logger, context, ruleArgs)) {
-                // Create a new Card
-                logger.info(`Creating new Card for "${issueUrl}" because of "${ruleName}" and value: "${ruleArgs}"`)
-                await context.github.projects.createProjectCard({column_id: columnId, content_id: issueId, content_type: issueType})
-              }
-            }
-          })
-        })
+          }
+        }
+
       } else {
         // Check if we need to move the Issue (or Pull request)
-        const graphResult = await context.github.query(`
+        const graphResult = await retryQuery(context, `
           query getCardAndColumnAutomationCards($url: URI!) {
             resource(url: $url) {
               ... on Issue {
@@ -327,25 +377,7 @@ module.exports = (robot) => {
         const cardsForIssue = resource.projectCards.nodes
 
         for (const issueCard of cardsForIssue) {
-          const automationRules = []
-          issueCard.project.columns.nodes.forEach((column) => {
-            if (column.id === issueCard.column.id) {
-              return // Skip because the Card is already in the Column
-            }
-            let cardsToParse = []
-            if (column.firstCards) { cardsToParse = cardsToParse.concat(column.firstCards.nodes) }
-            if (column.lastCards) { cardsToParse = cardsToParse.concat(column.lastCards.nodes) }
-
-            cardsToParse.forEach((card) => {
-              const rules = parseMarkdown(card)
-              if (rules.get(ruleName)) {
-                automationRules.push({
-                  column: column,
-                  ruleArgs: rules.get(ruleName)
-                })
-              }
-            })
-          })
+          const automationRules = extractAutomationRules(ruleName, [issueCard.project], issueCard)
 
           for (const {column, ruleArgs} of automationRules) {
             if (await ruleMatcher(logger, context, ruleArgs)) {
