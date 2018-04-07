@@ -4,7 +4,8 @@
   "description": "Add new Issues and PullRequests to a GitHub Project Board",
   "main": "index.js",
   "scripts": {
-    "start": "probot run ./index.js"
+    "start": "probot run ./index.js",
+    "test": "standard --fix"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,9 @@
   "dependencies": {
     "commonmark": "^0.28.1",
     "probot": "^6.1.0"
+  },
+  "devDependencies": {
+    "smee-client": "^1.0.1",
+    "standard": "^11.0.1"
   }
 }
