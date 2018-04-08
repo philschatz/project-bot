@@ -145,12 +145,13 @@ async function sleep (ms) {
     }, ms)
   })
 }
-async function retryQuery (context, query, args) {
+// Delay because sometimes the changes have not propagated to GraphQL yet
+async function retryQuery (apolloClient, queryConfig) {
   try {
-    return await context.github.query(query, args)
+    return await apolloClient.query(queryConfig)
   } catch (err) {
     await sleep(1000)
-    return context.github.query(query, args)
+    return apolloClient.query(queryConfig)
   }
 }
 
@@ -256,54 +257,40 @@ module.exports = (robot) => {
         issueUrl = context.payload.pull_request.html_url
       }
 
+      const apolloClient = await getCachedApolloClient(robot, context)
+
       if (createsACard) {
-        const graphResult = await retryQuery(context, `
-          query getAllProjectCards($issueUrl: URI!) {
-            resource(url: $issueUrl) {
-              ... on Issue {
-                id
-                repository {
-                  owner {
-                    url
-                    ... on Organization {
-                      projects(first: 10, states: [OPEN]) {
-                        nodes {
-                          columns(first: 10) {
-                            nodes {
-                              id
-                              firstCards: cards(first: 1) {
-                                nodes {
-                                  note
-                                }
-                              }
-                              lastCards: cards(last: 1) {
-                                nodes {
-                                  note
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
+        const graphResult = await retryQuery(apolloClient, {
+          variables: {issueUrl: issueUrl},
+          query: gql`
+            query getAllProjectCards($issueUrl: URI!) {
+              resource(url: $issueUrl) {
+                ... on Issue {
+                  id
+                  repository {
+                    owner {
+                      __typename
+                      id
+                      url
                     }
-                  }
-                  projects(first: 10, states: [OPEN]) {
-                    nodes {
-                      name
-                      columns(first: 10) {
-                        nodes {
-                          id
-                          name
-                          firstCards: cards(first: 1) {
-                            nodes {
-                              id
-                              note
+                    projects(first: 10, states: [OPEN]) {
+                      nodes {
+                        name
+                        columns(first: 10) {
+                          nodes {
+                            id
+                            name
+                            firstCards: cards(first: 1) {
+                              nodes {
+                                id
+                                note
+                              }
                             }
-                          }
-                          lastCards: cards(last: 1) {
-                            nodes {
-                              id
-                              note
+                            lastCards: cards(last: 1) {
+                              nodes {
+                                id
+                                note
+                              }
                             }
                           }
                         }
@@ -313,13 +300,45 @@ module.exports = (robot) => {
                 }
               }
             }
-          }
-        `, {issueUrl: issueUrl})
-        const {resource} = graphResult
+          `
+        })
+        const {resource} = graphResult.data
         // Loop through all of the Automation Cards and see if any match
         let allProjects = []
-        if (resource.repository.owner.projects) {
-          allProjects = allProjects.concat(resource.repository.owner.projects.nodes)
+        if (resource.repository.owner.__typename === 'Organization') {
+          const orgProjects = await apolloClient.query({
+            variables: {orgId: resource.repository.owner.id},
+            query: gql`
+              query orgProjects($orgId: ID!) {
+                node(id: $orgId) {
+                  ... on Organization {
+                    projects(first: 10, states: [OPEN]) {
+                      nodes {
+                        columns(first: 10) {
+                          nodes {
+                            id
+                            firstCards: cards(first: 1) {
+                              nodes {
+                                id
+                                note
+                              }
+                            }
+                            lastCards: cards(last: 1) {
+                              nodes {
+                                id
+                                note
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `
+          })
+          allProjects = allProjects.concat(orgProjects.data.node.projects.nodes)
         }
         if (resource.repository.projects) {
           allProjects = allProjects.concat(resource.repository.projects.nodes)
@@ -330,22 +349,21 @@ module.exports = (robot) => {
         for (const {column, ruleArgs} of automationRules) {
           if (await ruleMatcher(logger, context, ruleArgs)) {
             logger.info(`Creating Card for "${issueUrl}" to column ${column.id} because of "${ruleName}" and value: "${ruleArgs}"`)
-            const {errors} = await context.github.query(`
-              mutation createCard($contentId: ID!, $columnId: ID!) {
-                addProjectCard(input: {contentId: $contentId, projectColumnId: $columnId}) {
-                  clientMutationId
+            const {data} = await apolloClient.mutate({
+              variables: {contentId: resource.id, columnId: column.id},
+              mutation: gql`
+                mutation createCard($contentId: ID!, $columnId: ID!) {
+                  addProjectCard(input: {contentId: $contentId, projectColumnId: $columnId}) {
+                    clientMutationId
+                  }
                 }
-              }
-            `, {contentId: resource.id, columnId: column.id})
-            if (errors) {
-              return logger.error(errors)
-            }
+              `
+            })
           }
         }
       } else {
-        const apolloClient = await getCachedApolloClient(robot, context)
         // Check if we need to move the Issue (or Pull request)
-        const graphResult = await apolloClient.query({
+        const graphResult = await retryQuery(apolloClient, {
           variables: {url: issueUrl},
           query: gql`
             query getCardAndColumnAutomationCards($url: URI!) {
@@ -402,16 +420,17 @@ module.exports = (robot) => {
           for (const {column, ruleArgs} of automationRules) {
             if (await ruleMatcher(logger, context, ruleArgs)) {
               logger.info(`Moving Card ${issueCard.id} for "${issueUrl}" to column ${column.id} because of "${ruleName}" and value: "${ruleArgs}"`)
-              const {errors} = await context.github.query(`
-                mutation moveCard($cardId: ID!, $columnId: ID!) {
-                  moveProjectCard(input: {cardId: $cardId, columnId: $columnId}) {
-                    clientMutationId
+
+              const {data} = await apolloClient.mutate({
+                variables: {cardId: issueCard.id, columnId: column.id},
+                mutation: gql`
+                  mutation moveCard($cardId: ID!, $columnId: ID!) {
+                    moveProjectCard(input: {cardId: $cardId, columnId: $columnId}) {
+                      clientMutationId
+                    }
                   }
-                }
-              `, {cardId: issueCard.id, columnId: column.id})
-              if (errors) {
-                return logger.error(errors)
-              }
+                `
+              })
             }
           }
         }
