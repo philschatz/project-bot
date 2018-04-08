@@ -21,7 +21,11 @@
     "dotenv": ".env"
   },
   "dependencies": {
+    "apollo-boost": "^0.1.4",
     "commonmark": "^0.28.1",
+    "graphql": "^0.13.2",
+    "graphql-tag": "^2.8.0",
+    "node-fetch": "^2.1.2",
     "probot": "^6.1.0"
   },
   "devDependencies": {

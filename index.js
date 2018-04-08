@@ -1,4 +1,11 @@
 const commonmark = require('commonmark')
+const {default: ApolloClient} = require('apollo-boost')
+const gql = require('graphql-tag')
+// Set it global because it is not clear how to
+// pass `fetch` in to apollo-boost (Helper for using apollo-client)
+// See https://www.npmjs.com/package/apollo-link-http
+// and https://www.apollographql.com/docs/react/recipes/authentication.html
+global.fetch = require('node-fetch')
 
 const commonmarkParser = new commonmark.Parser()
 
@@ -146,6 +153,28 @@ async function retryQuery (context, query, args) {
     return context.github.query(query, args)
   }
 }
+
+const apolloCache = new Map() // Key is the install id, value is the Apollo Client. Switch this to use cache-manager so they disappear over time
+async function getCachedApolloClient(robot, context) {
+  const id = context.payload.installation.id
+  if (!apolloCache.get(id)) {
+    apolloCache.set(id, new ApolloClient({
+      uri: 'https://api.github.com/graphql',
+      // fetch: fetch,
+      request: async (operation) => {
+        // from https://github.com/apollographql/apollo-client/tree/master/packages/apollo-boost#apollo-boost-options
+        const token = await robot.cache.get(`app:${id}:token`)
+        operation.setContext({
+          headers: {
+            authorization: `token ${token.data.token}`
+          }
+        })
+      }
+    }))
+  }
+  return apolloCache.get(id)
+}
+
 
 module.exports = (robot) => {
   const logger = robot.log.child({name: 'project-bot'})
@@ -314,41 +343,45 @@ module.exports = (robot) => {
           }
         }
       } else {
+        const apolloClient = await getCachedApolloClient(robot, context)
         // Check if we need to move the Issue (or Pull request)
-        const graphResult = await retryQuery(context, `
-          query getCardAndColumnAutomationCards($url: URI!) {
-            resource(url: $url) {
-              ... on Issue {
-                projectCards(first: 10) {
-                  nodes {
-                    id
-                    url
-                    column {
-                      name
+        const graphResult = await apolloClient.query({
+          variables: {url: issueUrl},
+          query: gql`
+            query getCardAndColumnAutomationCards($url: URI!) {
+              resource(url: $url) {
+                ... on Issue {
+                  projectCards(first: 10) {
+                    nodes {
                       id
-                    }
-                    project {
-                      name
-                      id
-                      columns(first: 10) {
-                        totalCount
-                        nodes {
-                          id
-                          url
-                          firstCards: cards(first: 1) {
-                            totalCount
-                            nodes {
-                              url
-                              id
-                              note
+                      url
+                      column {
+                        name
+                        id
+                      }
+                      project {
+                        name
+                        id
+                        columns(first: 10) {
+                          totalCount
+                          nodes {
+                            id
+                            url
+                            firstCards: cards(first: 1) {
+                              totalCount
+                              nodes {
+                                url
+                                id
+                                note
+                              }
                             }
-                          }
-                          lastCards: cards(last: 1) {
-                            totalCount
-                            nodes {
-                              url
-                              id
-                              note
+                            lastCards: cards(last: 1) {
+                              totalCount
+                              nodes {
+                                url
+                                id
+                                note
+                              }
                             }
                           }
                         }
@@ -358,12 +391,9 @@ module.exports = (robot) => {
                 }
               }
             }
-          }
-        `, {url: issueUrl})
-        const {resource, errors} = graphResult
-        if (errors) {
-          return logger.error(errors)
-        }
+          `
+        })
+        const {resource} = graphResult.data
         const cardsForIssue = resource.projectCards.nodes
 
         for (const issueCard of cardsForIssue) {
