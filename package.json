@@ -2,9 +2,9 @@
   "name": "project-bot",
   "version": "2.0.1",
   "description": "Add new Issues and PullRequests to a GitHub Project Board",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "probot run ./index.js",
+    "start": "probot run ./src/index.js",
     "test": "standard --fix"
   },
   "repository": {
