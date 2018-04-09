@@ -45,6 +45,7 @@ function parseMarkdown (card) {
   return parsedRules
 }
 
+// For parse out all the Automation Rules from Cards in a Project
 module.exports = function extractAutomationRules (projects) {
   const automationRules = []
 

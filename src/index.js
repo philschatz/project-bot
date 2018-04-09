@@ -19,6 +19,35 @@ async function retryQuery (context, query, args) {
   }
 }
 
+// Common GraphQL Fragment for getting the Automation Cards out of the bottom of every Column in a Project
+const PROJECT_FRAGMENT = `
+  name
+  id
+  columns(first: 10) {
+    totalCount
+    nodes {
+      id
+      url
+      firstCards: cards(first: 1) {
+        totalCount
+        nodes {
+          url
+          id
+          note
+        }
+      }
+      lastCards: cards(last: 1) {
+        totalCount
+        nodes {
+          url
+          id
+          note
+        }
+      }
+    }
+  }
+`
+
 module.exports = (robot) => {
   const logger = robot.log.child({name: 'project-bot'})
   // Increase the maxListenerCount by the number of automationCommands
@@ -44,51 +73,19 @@ module.exports = (robot) => {
                 repository {
                   owner {
                     url
+                    ${''/* Projects can be attached to an Organization... */}
                     ... on Organization {
                       projects(first: 10, states: [OPEN]) {
                         nodes {
-                          columns(first: 10) {
-                            nodes {
-                              id
-                              firstCards: cards(first: 1) {
-                                nodes {
-                                  id
-                                  note
-                                }
-                              }
-                              lastCards: cards(last: 1) {
-                                nodes {
-                                  id
-                                  note
-                                }
-                              }
-                            }
-                          }
+                          ${PROJECT_FRAGMENT}
                         }
                       }
                     }
                   }
+                  ${''/* ... or on a Repository */}
                   projects(first: 10, states: [OPEN]) {
                     nodes {
-                      name
-                      columns(first: 10) {
-                        nodes {
-                          id
-                          name
-                          firstCards: cards(first: 1) {
-                            nodes {
-                              id
-                              note
-                            }
-                          }
-                          lastCards: cards(last: 1) {
-                            nodes {
-                              id
-                              note
-                            }
-                          }
-                        }
-                      }
+                      ${PROJECT_FRAGMENT}
                     }
                   }
                 }
@@ -97,15 +94,17 @@ module.exports = (robot) => {
           }
         `, {issueUrl: issueUrl})
         const {resource} = graphResult
-        // Loop through all of the Automation Cards and see if any match
+
         let allProjects = []
         if (resource.repository.owner.projects) {
+          // Add Org Projects
           allProjects = allProjects.concat(resource.repository.owner.projects.nodes)
         }
         if (resource.repository.projects) {
           allProjects = allProjects.concat(resource.repository.projects.nodes)
         }
 
+        // Loop through all of the Automation Cards and see if any match
         const automationRules = extractAutomationRules(allProjects).filter(({ruleName: rn}) => rn === ruleName)
 
         for (const {column, ruleArgs} of automationRules) {
@@ -135,31 +134,7 @@ module.exports = (robot) => {
                       id
                     }
                     project {
-                      name
-                      id
-                      columns(first: 10) {
-                        totalCount
-                        nodes {
-                          id
-                          url
-                          firstCards: cards(first: 1) {
-                            totalCount
-                            nodes {
-                              url
-                              id
-                              note
-                            }
-                          }
-                          lastCards: cards(last: 1) {
-                            totalCount
-                            nodes {
-                              url
-                              id
-                              note
-                            }
-                          }
-                        }
-                      }
+                      ${PROJECT_FRAGMENT}
                     }
                   }
                 }
