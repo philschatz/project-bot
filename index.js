@@ -261,6 +261,7 @@ module.exports = (robot) => {
 
       if (createsACard) {
         const graphResult = await retryQuery(apolloClient, {
+          fetchPolicy: 'network-only',
           variables: {issueUrl: issueUrl},
           query: gql`
             query getAllProjectCards($issueUrl: URI!) {
@@ -307,6 +308,7 @@ module.exports = (robot) => {
         let allProjects = []
         if (resource.repository.owner.__typename === 'Organization') {
           const orgProjects = await apolloClient.query({
+            fetchPolicy: 'network-only',
             variables: {orgId: resource.repository.owner.id},
             query: gql`
               query orgProjects($orgId: ID!) {
@@ -364,6 +366,7 @@ module.exports = (robot) => {
       } else {
         // Check if we need to move the Issue (or Pull request)
         const graphResult = await retryQuery(apolloClient, {
+          fetchPolicy: 'network-only',
           variables: {url: issueUrl},
           query: gql`
             query getCardAndColumnAutomationCards($url: URI!) {
