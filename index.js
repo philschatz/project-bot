@@ -244,11 +244,13 @@ module.exports = (robot) => {
                               id
                               firstCards: cards(first: 1) {
                                 nodes {
+                                  id
                                   note
                                 }
                               }
                               lastCards: cards(last: 1) {
                                 nodes {
+                                  id
                                   note
                                 }
                               }
