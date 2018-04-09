@@ -1,3 +1,6 @@
+const GET_ALL_PROJECT_CARDS_GQL = require('../data/getAllProjectCards/graphql')
+const GET_CARD_AND_COLUMN_AUTOMATION_CARDS = require('../data/getCardAndColumnAutomationCards/graphql')
+
 const extractAutomationRules = require('./extract-rules')
 const automationCommands = require('./commands')
 
@@ -19,34 +22,6 @@ async function retryQuery (context, query, args) {
   }
 }
 
-// Common GraphQL Fragment for getting the Automation Cards out of the bottom of every Column in a Project
-const PROJECT_FRAGMENT = `
-  name
-  id
-  columns(first: 10) {
-    totalCount
-    nodes {
-      id
-      url
-      firstCards: cards(first: 1) {
-        totalCount
-        nodes {
-          url
-          id
-          note
-        }
-      }
-      lastCards: cards(last: 1) {
-        totalCount
-        nodes {
-          url
-          id
-          note
-        }
-      }
-    }
-  }
-`
 
 module.exports = (robot) => {
   const logger = robot.log.child({name: 'project-bot'})
@@ -65,34 +40,7 @@ module.exports = (robot) => {
       // A couple commands occur when a new Issue or Pull Request is created.
       // In those cases, a new Card needs to be created, rather than moving an existing card.
       if (createsACard) {
-        const graphResult = await retryQuery(context, `
-          query getAllProjectCards($issueUrl: URI!) {
-            resource(url: $issueUrl) {
-              ... on Issue {
-                id
-                repository {
-                  owner {
-                    url
-                    ${''/* Projects can be attached to an Organization... */}
-                    ... on Organization {
-                      projects(first: 10, states: [OPEN]) {
-                        nodes {
-                          ${PROJECT_FRAGMENT}
-                        }
-                      }
-                    }
-                  }
-                  ${''/* ... or on a Repository */}
-                  projects(first: 10, states: [OPEN]) {
-                    nodes {
-                      ${PROJECT_FRAGMENT}
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `, {issueUrl: issueUrl})
+        const graphResult = await retryQuery(context, GET_ALL_PROJECT_CARDS_GQL, {issueUrl: issueUrl})
         const {resource} = graphResult
 
         let allProjects = []
@@ -121,27 +69,7 @@ module.exports = (robot) => {
         }
       } else {
         // Check if we need to move the Issue (or Pull request)
-        const graphResult = await retryQuery(context, `
-          query getCardAndColumnAutomationCards($url: URI!) {
-            resource(url: $url) {
-              ... on Issue {
-                projectCards(first: 10) {
-                  nodes {
-                    id
-                    url
-                    column {
-                      name
-                      id
-                    }
-                    project {
-                      ${PROJECT_FRAGMENT}
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `, {url: issueUrl})
+        const graphResult = await retryQuery(context, GET_CARD_AND_COLUMN_AUTOMATION_CARDS, {url: issueUrl})
         const {resource} = graphResult
         const cardsForIssue = resource.projectCards.nodes
 

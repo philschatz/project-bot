@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "probot run ./src/index.js",
-    "test": "standard --fix"
+    "test": "standard --fix",
+    "update-typescript": "gql2ts --output-file ./data/index.d.ts ./data/schema.json && node ./data/build-from-query.js"
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,10 @@
     "probot": "^6.1.0"
   },
   "devDependencies": {
+    "@gql2ts/from-query": "^1.7.2",
+    "gql2ts": "^1.7.2",
     "smee-client": "^1.0.1",
-    "standard": "^11.0.1"
+    "standard": "^11.0.1",
+    "typescript": "^2.8.1"
   }
 }

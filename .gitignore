@@ -1,2 +1,5 @@
 
 .env
+
+/data/index.d.ts
+/data/*/index.d.ts
