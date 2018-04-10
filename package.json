@@ -1,6 +1,6 @@
 {
   "name": "project-bot",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Add new Issues and PullRequests to a GitHub Project Board",
   "main": "src/index.js",
   "scripts": {
