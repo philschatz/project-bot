@@ -142,9 +142,13 @@ module.exports = (robot) => {
             }
           }
         `, {url: issueUrl})
-        logger.trace(graphResult, 'Retrieved results')
+        logger.debug(graphResult, 'Retrieved results')
         const {resource} = graphResult
-        const cardsForIssue = resource.projectCards.nodes
+        // sometimes there are no projectCards
+        if (!resource.projectCards) {
+          logger.error(issueUrl, resource, 'Not even an array for project cards. Odd')
+        }
+        const cardsForIssue = resource.projectCards ? resource.projectCards.nodes : []
 
         for (const issueCard of cardsForIssue) {
           const automationRules = extractAutomationRules([issueCard.project]).filter(({ruleName: rn}) => rn === ruleName)
