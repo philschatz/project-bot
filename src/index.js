@@ -142,6 +142,7 @@ module.exports = (robot) => {
             }
           }
         `, {url: issueUrl})
+        logger.trace(graphResult, 'Retrieved results')
         const {resource} = graphResult
         const cardsForIssue = resource.projectCards.nodes
 
