@@ -59,7 +59,7 @@ module.exports = (robot) => {
   automationCommands.forEach(({createsACard, webhookName, ruleName, ruleMatcher}) => {
     logger.trace(`Attaching listener for ${webhookName}`)
     robot.on(webhookName, async function (context) {
-      const issueUrl = context.payload.issue ? context.payload.issue.html_url : context.payload.pull_request.html_url
+      const issueUrl = context.payload.issue ? context.payload.issue.html_url : context.payload.pull_request.html_url.replace('/pull/', '/issues/')
       logger.trace(`Event received for ${webhookName}`)
 
       // A couple commands occur when a new Issue or Pull Request is created.
