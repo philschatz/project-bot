@@ -50,12 +50,10 @@ const PROJECT_FRAGMENT = `
 
 let eventQueue = []
 let eventTimeout = null
-async function delayEvent(webhookName, async handler) {
+async function delayEvent(logger, webhookName, handler) {
   eventQueue.push({webhookName, handler})
   clearTimeout(eventTimeout)
   eventTimeout = setTimeout(async () => {
-    eventQueue = []
-    eventTimeout = null
     // Sort the queue and then fire each event
     const creationEventNames = automationCommands.filter(({createsACard}) => createsACard).map(({webhookName}) => webhookName)
     const sortedEvents = eventQueue.sort(({webhookName: a}, {webhookName: b}) => {
@@ -69,6 +67,8 @@ async function delayEvent(webhookName, async handler) {
         return 0
       }
     })
+    eventQueue = []
+    eventTimeout = null
     for (const {handler} of sortedEvents) {
       try {
         await handler()
@@ -91,15 +91,15 @@ module.exports = (robot) => {
   automationCommands.forEach(({createsACard, webhookName, ruleName, ruleMatcher}) => {
     logger.trace(`Attaching listener for ${webhookName}`)
     robot.on(webhookName, async function (context) {
-      const issueUrl = context.payload.issue ? context.payload.issue.html_url : context.payload.pull_request.html_url
-      logger.trace(`Event received for ${webhookName}. Delaying a bit so it can be sorted`)
+      const issueUrl = context.payload.issue ? context.payload.issue.html_url : context.payload.pull_request.html_url.replace('/pull/', '/issues/')
+      logger.debug(`Event received for ${webhookName}. Delaying a bit so it can be sorted`)
       // Webhooks sometimes come in out-of-order. This is a problem when a new Issue (or PullRequest)
       // comes in that is assigned to someone.
       // Sometimes the `issues.assigned` event is received before the `issues.opened` event is.
       //
       // Delay firing the event so these can be sorted
-      delayEvent(webhookName, async () => {
-
+      delayEvent(logger, webhookName, async () => {
+        logger.debug(`Starting delayed event for ${webhookName}`)
         // A couple commands occur when a new Issue or Pull Request is created.
         // In those cases, a new Card needs to be created, rather than moving an existing card.
         if (createsACard) {
@@ -180,8 +180,13 @@ module.exports = (robot) => {
               }
             }
           `, {url: issueUrl})
+          logger.trace(graphResult, 'Retrieved results')
           const {resource} = graphResult
-          const cardsForIssue = resource.projectCards.nodes
+          // sometimes there are no projectCards
+          if (!resource.projectCards) {
+            logger.error(issueUrl, resource, 'Not even an array for project cards. Odd')
+          }
+          const cardsForIssue = resource.projectCards ? resource.projectCards.nodes : []
 
           for (const issueCard of cardsForIssue) {
             const automationRules = extractAutomationRules([issueCard.project]).filter(({ruleName: rn}) => rn === ruleName)
@@ -200,6 +205,7 @@ module.exports = (robot) => {
             }
           }
         }
+        logger.debug(`Done executing handler for ${webhookName}`)
       })
 
     })
