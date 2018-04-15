@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "commonmark": "^0.28.1",
+    "opbeat": "^4.17.0",
     "probot": "^6.1.0"
   },
   "devDependencies": {

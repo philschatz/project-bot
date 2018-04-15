@@ -1,3 +1,5 @@
+require('opbeat').start()
+
 const extractAutomationRules = require('./extract-rules')
 const automationCommands = require('./commands')
 
