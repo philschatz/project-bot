@@ -1,4 +1,4 @@
-require('opbeat').start()
+const opbeat = require('opbeat').start()
 
 const extractAutomationRules = require('./extract-rules')
 const automationCommands = require('./commands')
@@ -51,6 +51,9 @@ const PROJECT_FRAGMENT = `
 `
 
 module.exports = (robot) => {
+  // Add monitoring
+  robot.route().use(opbeat.middleware.express())
+
   const logger = robot.log.child({name: 'project-bot'})
   // Increase the maxListenerCount by the number of automationCommands
   // because we register a bunch of listeners
