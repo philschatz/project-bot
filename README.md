@@ -27,35 +27,42 @@ To create an Automation Rule, create a Card in a Project like this:
 - `assigned_issue`
 - `closed_issue`
 - `added_label` **wontfix**
-- `new_pullrequest` **foo-bar** **test**
+- `new_pullrequest` **repo1** **repo2**
 ```
 
-Now, whenever any Issue that is assigned, or closed, or a `wontfix` label is added, or a new Pull Request is opened will show up in this Column.
+Now, whenever any Issue that is assigned, or closed, or a `wontfix` label is added, or a new Pull Request is opened on the `repo1` or `repo2` repository will show up in this Column.
 
 
 # Rules
 
 The type of rules outlined in there are:
 
-- `new_issue` : When an Issue is created (optionally, a space-separated set of repo names)
-- `new_pullrequest` : When a Pull Request is created (optionally, a space-separated set of repo names)
-- `assigned_to_issue`: When an Issue is assigned to a specific user
+## Issues
+- `new_issue`: When an Issue is created (optionally, a space-separated set of repo names)
+- `edited_issue`: When an Issue is edited
 - `assigned_issue`: When an Issue is assigned to a user (but was not before)
+- `assigned_to_issue`: When an Issue is assigned to a specific user
 - `unassigned_issue`: When an Issue is no longer assigned to a user
+- `milestoned_issue`: When an Issue is added to a Milestone
+- `demilestoned_issue`: When an Issue is removed from a Milestone
+- `closed_issue`: When an Issue is closed
+- `reopened_issue`: When an Issue is reopened
+
+## Pull Requests
+- `new_pullrequest`: When a Pull Request is created (optionally, a space-separated set of repo names)
 - `assigned_pullrequest`: When a Pull Request is assigned to a user (but was not before)
 - `unassigned_pullrequest`: When a Pull Request is no longer assigned to a user
-- `reopened_issue`: When an Issue is reopened
-- `reopened_pullrequest`: When a Pull Request is reopened
 - `added_reviewer`: (optional username or array of usernames that need to be added)
 - `accepted_pullrequest`: When at least one Reviewer Accepted, and there are no Rejections on a Pull request
 - `merged_pullrequest`: When a Pull Request is merged
 - `closed_pullrequest`: When a Pull Request is closed
+- `reopened_pullrequest`: When a Pull Request is reopened
+
+## Labels
 - `added_label`: (has one argument, the string representing the name of the label)
 - `removed_label`: (has one argument, the string representing the name of the label)
-- `closed_issue`: When an Issue is closed
-- `edited_issue`
-- `milestoned_issue`
-- `demilestoned_issue`
+
+## Other
 - Not finding the event you would like? Just create a new Issue in this Repository!
 
 
