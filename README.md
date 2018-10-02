@@ -55,14 +55,22 @@ This bot uses normal Project Board note cards with Markdown formatting for confi
   ```
 - Items are added or moved into the column when _any_ of the rules in the list are triggered. (It is currently _not_ possible to use boolean logic to combine any rules.)
 
-
 ## Available Rules
 
-The available rules are:
+The following rules can be included in automation cards:
 
-### Issues
+## Add items
+
+To add items to the project board, you have these two rules:
 
 - `new_issue`: When an Issue is created (optionally, a space-separated set of repo names)
+- `new_pullrequest`: When a Pull Request is created (optionally, a space-separated set of repo names)
+
+## Move items
+
+After an item has been added to a project board (manually or by the previous rules) it can be moved to another column by one of the following rules:
+
+### Issues
 - `edited_issue`: When an Issue is edited
 - `assigned_issue`: When an Issue is assigned to a user (but was not before)
 - `assigned_to_issue`: When an Issue is assigned to a specific user
@@ -73,8 +81,6 @@ The available rules are:
 - `reopened_issue`: When an Issue is reopened
 
 ### Pull Requests
-
-- `new_pullrequest`: When a Pull Request is created (optionally, a space-separated set of repo names)
 - `assigned_pullrequest`: When a Pull Request is assigned to a user (but was not before)
 - `unassigned_pullrequest`: When a Pull Request is no longer assigned to a user
 - `added_reviewer`: (optional username or array of usernames that need to be added)
@@ -84,9 +90,8 @@ The available rules are:
 - `reopened_pullrequest`: When a Pull Request is reopened
 
 ### Labels
-
-- `added_label`: (has one argument, the string representing the name of the label)
-- `removed_label`: (has one argument, the string representing the name of the label)
+- `added_label`: (requires exactly one argument, the string representing the name of the label)
+- `removed_label`: (requires exactly one argument, the string representing the name of the label)
 
 ### Other
 
