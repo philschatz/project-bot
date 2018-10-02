@@ -35,10 +35,20 @@ Now, whenever any Issue that is assigned, or closed, or a `wontfix` label is add
 
 # Rules
 
-The type of rules outlined in there are:
+The following rules can be included in automation cards:
 
-## Issues
+## Add items
+
+To add items to the project board, you have these two rules:
+
 - `new_issue`: When an Issue is created (optionally, a space-separated set of repo names)
+- `new_pullrequest`: When a Pull Request is created (optionally, a space-separated set of repo names)
+
+## Move items
+
+After an item has been added to a project board (manually or by the previous rules) it can be moved to another column by one of the following rules:
+
+### Issues
 - `edited_issue`: When an Issue is edited
 - `assigned_issue`: When an Issue is assigned to a user (but was not before)
 - `assigned_to_issue`: When an Issue is assigned to a specific user
@@ -49,7 +59,6 @@ The type of rules outlined in there are:
 - `reopened_issue`: When an Issue is reopened
 
 ## Pull Requests
-- `new_pullrequest`: When a Pull Request is created (optionally, a space-separated set of repo names)
 - `assigned_pullrequest`: When a Pull Request is assigned to a user (but was not before)
 - `unassigned_pullrequest`: When a Pull Request is no longer assigned to a user
 - `added_reviewer`: (optional username or array of usernames that need to be added)
