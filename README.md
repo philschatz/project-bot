@@ -68,8 +68,8 @@ After an item has been added to a project board (manually or by the previous rul
 - `reopened_pullrequest`: When a Pull Request is reopened
 
 ## Labels
-- `added_label`: (has one argument, the string representing the name of the label)
-- `removed_label`: (has one argument, the string representing the name of the label)
+- `added_label`: (requires exactly one argument, the string representing the name of the label)
+- `removed_label`: (requires exactly one argument, the string representing the name of the label)
 
 ## Other
 - Not finding the event you would like? Just create a new Issue in this Repository!
