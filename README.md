@@ -1,23 +1,20 @@
 # project-bot
 
-Do you like the idea of [GitHub's Project Automation feature](https://github.com/blog/2458-keep-your-project-boards-up-to-date-automatically)
-but find it lacking?
+Do you like the idea of [GitHub's Project Automation feature](https://github.com/blog/2458-keep-your-project-boards-up-to-date-automatically) but find it lacking? It will only add a new Issue or Pull Request once you have manually assigned it to a Project. 
 
-GitHub's Project Automation feature will add a new Issue or Pull Request once you have manually assigned it to a Project. This bot will **automatically** add new Issues or Pull Requests to a Project board based on specially formatted Cards in each Column of a Project.
-
-It also allows you to customize the rules for moving Issues between Columns.
+This bot will **automatically** _add_ new Issues or Pull Requests to a Project board based on specially formatted Cards in each Column of a Project. It also allows you to customize the rules for _moving_ Issues between Columns.
 
 
-# Installation
+## Installation
 
-Go to [The project-bot App homepage](https://github.com/apps/project-bot) and click `[Configure]` to have it run on **Public** Project Boards.
+Go to the [project-bot GitHub App](https://github.com/apps/project-bot) page and click `[Install]` (or `[Configure]` if you already installed it) to have it run on **Public** Project Boards.
 
-To see what it looks like, you can look at the [Projects for this Repository](https://github.com/philschatz/project-bot/projects).
+To see what it looks like, you can look at the [GitHub projects for this repository](https://github.com/philschatz/project-bot/projects).
 
 
-# Example Automation Card
+## Example
 
-To create an Automation Rule, create a Card in a Project like this:
+To create an Automation Card, create a Card in a Project like this:
 
 ```md
 ###### Automation Rules
@@ -33,7 +30,32 @@ To create an Automation Rule, create a Card in a Project like this:
 Now, whenever any Issue that is assigned, or closed, or a `wontfix` label is added, or a new Pull Request is opened on the `repo1` or `repo2` repository will show up in this Column.
 
 
-# Rules
+## Syntax
+
+This bot uses normal Project Board note cards with Markdown formatting for configuration. 
+
+### Automation Cards
+
+- Automation Cards are identified by the string `###### Automation Rules` that _has_ to be used in the note text
+- The automation card can be at any location of a column (but they tend to end up at the bottom as new cards are added at the top automatically)
+- There can be multiple automation cards per column, but you will probably not need that (unless you have _many_ rules or add items from _many_ repositories)
+- An automation card can contain other text besides the headline and rules if you really need it to (but best avoid other lists to confuse the parser)
+
+### Rules
+
+- Rules have to be listed in an unnumbered list in the Automation Card
+- This list can contain as many rules as you like
+- The rule (see list below) _should_ to be wrapped in \` like so:
+  ```
+  - `example_rule`
+  ```
+- Rule Parameters _should_ be wrapped in `**` like so:
+  ```
+  - `example_rule` **param 1** **param 2**
+  ```
+- Items are added or moved into the column when _any_ of the rules in the list are triggered. (It is currently _not_ possible to use boolean logic to combine any rules.)
+
+## Available Rules
 
 The following rules can be included in automation cards:
 
@@ -58,7 +80,7 @@ After an item has been added to a project board (manually or by the previous rul
 - `closed_issue`: When an Issue is closed
 - `reopened_issue`: When an Issue is reopened
 
-## Pull Requests
+### Pull Requests
 - `assigned_pullrequest`: When a Pull Request is assigned to a user (but was not before)
 - `unassigned_pullrequest`: When a Pull Request is no longer assigned to a user
 - `added_reviewer`: (optional username or array of usernames that need to be added)
@@ -67,14 +89,15 @@ After an item has been added to a project board (manually or by the previous rul
 - `closed_pullrequest`: When a Pull Request is closed
 - `reopened_pullrequest`: When a Pull Request is reopened
 
-## Labels
+### Labels
 - `added_label`: (requires exactly one argument, the string representing the name of the label)
 - `removed_label`: (requires exactly one argument, the string representing the name of the label)
 
-## Other
+### Other
+
 - Not finding the event you would like? Just create a new Issue in this Repository!
 
 
-# Screencap
+## Screencap
 
 ![automatic-project-columns](https://user-images.githubusercontent.com/253202/37872089-ad7d21ea-2fcd-11e8-81ba-7f3977c102cf.gif)
