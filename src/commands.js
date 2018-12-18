@@ -1,5 +1,10 @@
 function ALWAYS_TRUE () { return true }
 
+async function labelMatcher (logger, context, ruleArgs) {
+  // labels may be defined by a label or an id (for more persistence)
+  return context.payload.label.name === ruleArgs[0] || context.payload.label.id === ruleArgs[0]
+}
+
 module.exports = [
   { ruleName: 'edited_issue', webhookName: 'issues.edited', ruleMatcher: ALWAYS_TRUE },
   { ruleName: 'demilestoned_issue', webhookName: 'issues.demilestoned', ruleMatcher: ALWAYS_TRUE },
@@ -93,19 +98,36 @@ module.exports = [
     }
   },
   {
+    // deprecated
     ruleName: 'added_label',
     webhookName: 'issues.labeled',
-    ruleMatcher: async function (logger, context, ruleArgs) {
-      // labels may be defined by a label or an id (for more persistence)
-      return context.payload.label.name === ruleArgs[0] || context.payload.label.id === ruleArgs[0]
-    }
+    ruleMatcher: labelMatcher
   },
   {
+    // deprecated
     ruleName: 'removed_label',
     webhookName: 'issues.unlabeled',
-    ruleMatcher: async function (logger, context, ruleArgs) {
-      return context.payload.label.name === ruleArgs[0] || context.payload.label.id === ruleArgs[0]
-    }
+    ruleMatcher: labelMatcher
+  },
+  {
+    ruleName: 'added_issue_label',
+    webhookName: 'issues.labeled',
+    ruleMatcher: labelMatcher
+  },
+  {
+    ruleName: 'removed_issue_label',
+    webhookName: 'issues.unlabeled',
+    ruleMatcher: labelMatcher
+  },
+  {
+    ruleName: 'added_pullrequest_label',
+    webhookName: 'pull_request.labeled',
+    ruleMatcher: labelMatcher
+  },
+  {
+    ruleName: 'removed_pullrequest_label',
+    webhookName: 'pull_request.unlabeled',
+    ruleMatcher: labelMatcher
   },
   {
     ruleName: 'accepted_pullrequest',

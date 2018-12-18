@@ -79,6 +79,9 @@ After an item has been added to a project board (manually or by the previous rul
 - `demilestoned_issue`: When an Issue is removed from a Milestone
 - `closed_issue`: When an Issue is closed
 - `reopened_issue`: When an Issue is reopened
+- `added_issue_label`: When a Label is added to an Issue (requires exactly one argument, the string representing the name of the label)
+- `removed_issue_label`: When a Label is removed from an Issue (requires exactly one argument, the string representing the name of the label)
+
 
 ### Pull Requests
 - `assigned_pullrequest`: When a Pull Request is assigned to a user (but was not before)
@@ -88,10 +91,13 @@ After an item has been added to a project board (manually or by the previous rul
 - `merged_pullrequest`: When a Pull Request is merged
 - `closed_pullrequest`: When a Pull Request is closed
 - `reopened_pullrequest`: When a Pull Request is reopened
+- `added_pullrequest_label`: When a Label is added to a Pull Request (requires exactly one argument, the string representing the name of the label)
+- `removed_pullrequest_label`: When a Label is removed from a Pull Request (requires exactly one argument, the string representing the name of the label)
+
 
 ### Labels
-- `added_label`: (requires exactly one argument, the string representing the name of the label)
-- `removed_label`: (requires exactly one argument, the string representing the name of the label)
+- **deprecated** `added_label`: (requires exactly one argument, the string representing the name of the label)
+- **deprecated** `removed_label`: (requires exactly one argument, the string representing the name of the label)
 
 ### Other
 
