@@ -37,7 +37,7 @@ This bot uses normal Project Board note cards with Markdown formatting for confi
 ### Automation Cards
 
 - Automation Cards are identified by the string `###### Automation Rules` that _has_ to be used in the note text
-- The automation card can be at any location of a column (but they tend to end up at the bottom as new cards are added at the top automatically)
+- The automation card must be at any the top or bottom of a column (but they tend to end up at the bottom as new cards are added at the top automatically)
 - There can be multiple automation cards per column, but you will probably not need that (unless you have _many_ rules or add items from _many_ repositories)
 - An automation card can contain other text besides the headline and rules if you really need it to (but best avoid other lists to confuse the parser)
 
