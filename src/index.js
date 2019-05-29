@@ -28,7 +28,7 @@ const PROJECT_FRAGMENT = `
     nodes {
       id
       url
-      firstCards: cards(first: 1) {
+      firstCards: cards(first: 1, archivedStates: NOT_ARCHIVED) {
         totalCount
         nodes {
           url
@@ -36,7 +36,7 @@ const PROJECT_FRAGMENT = `
           note
         }
       }
-      lastCards: cards(last: 1) {
+      lastCards: cards(last: 1, archivedStates: NOT_ARCHIVED) {
         totalCount
         nodes {
           url
