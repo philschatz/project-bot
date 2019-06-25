@@ -101,8 +101,23 @@ module.exports = [
     }
   },
   {
+    ruleName: 'added_label',
+    webhookName: 'pull_request.labeled',
+    ruleMatcher: async function (logger, context, ruleArgs) {
+      // labels may be defined by a label or an id (for more persistence)
+      return context.payload.label.name === ruleArgs[0] || context.payload.label.id === ruleArgs[0]
+    }
+  },
+  {
     ruleName: 'removed_label',
     webhookName: 'issues.unlabeled',
+    ruleMatcher: async function (logger, context, ruleArgs) {
+      return context.payload.label.name === ruleArgs[0] || context.payload.label.id === ruleArgs[0]
+    }
+  },
+  {
+    ruleName: 'removed_label',
+    webhookName: 'pull_request.unlabeled',
     ruleMatcher: async function (logger, context, ruleArgs) {
       return context.payload.label.name === ruleArgs[0] || context.payload.label.id === ruleArgs[0]
     }
