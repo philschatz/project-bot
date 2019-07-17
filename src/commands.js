@@ -3,7 +3,12 @@ function ALWAYS_TRUE () { return true }
 function match_label(label, args) {
   const labels = args
   // labels may be defined by a label or an id (for more persistence)
-  return labels.indexOf(label.name) >= 0 || labels.indexOf(label.id) >= 0
+  for(var i=0; i !== labels.length; i+=1) {
+    if (labels[i] === label.name || labels[i] === label.id) {
+      return true
+    }
+  }
+  return false
 }
 
 module.exports = [
