@@ -13,11 +13,11 @@ const commonmarkParser = new commonmark.Parser()
 // ```
 function parseMarkdown (card) {
   if (!card.note) {
-    return new Map() // no Rules
+    return [] // no Rules
   }
   const root = commonmarkParser.parse(card.note)
   const walker = root.walker()
-  const parsedRules = new Map()
+  const parsedRules = []
   let walkEvent
   while ((walkEvent = walker.next())) {
     const {node} = walkEvent
@@ -38,7 +38,7 @@ function parseMarkdown (card) {
         if (args.length === 0 && node.next && node.next.literal) {
           args = node.next.literal.trim().split(' ').map((arg) => arg.trim())
         }
-        parsedRules.set(node.literal, args)
+        parsedRules.push({ ruleName: node.literal, ruleArgs: args})
       }
     }
   }
@@ -64,11 +64,11 @@ module.exports = function extractAutomationRules (projects) {
 
   allCards.forEach(({card, column}) => {
     const rules = parseMarkdown(card)
-    rules.forEach((ruleArgs, ruleName) => {
+    rules.forEach((r) => {
       automationRules.push({
         column,
-        ruleName,
-        ruleArgs
+        r.ruleName,
+        r.ruleArgs
       })
     })
   })
