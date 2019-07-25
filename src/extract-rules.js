@@ -67,8 +67,8 @@ module.exports = function extractAutomationRules (projects) {
     rules.forEach((r) => {
       automationRules.push({
         column,
-        r.ruleName,
-        r.ruleArgs
+        ruleName: r.ruleName,
+        ruleArgs: r.ruleArgs
       })
     })
   })
