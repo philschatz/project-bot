@@ -1,6 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`project-bot pull_request.opened 1`] = `
+exports[`project-bot closed_issue 1`] = `
+"
+                mutation moveCard($cardId: ID!, $columnId: ID!) {
+                  moveProjectCard(input: {cardId: $cardId, columnId: $columnId}) {
+                    clientMutationId
+                  }
+                }
+              "
+`;
+
+exports[`project-bot new_issue 1`] = `
+"
+              mutation createCard($contentId: ID!, $columnId: ID!) {
+                addProjectCard(input: {contentId: $contentId, projectColumnId: $columnId}) {
+                  clientMutationId
+                }
+              }
+            "
+`;
+
+exports[`project-bot new_pullrequest 1`] = `
 "
               mutation createCard($contentId: ID!, $columnId: ID!) {
                 addProjectCard(input: {contentId: $contentId, projectColumnId: $columnId}) {

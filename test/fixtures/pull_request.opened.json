@@ -75,7 +75,7 @@
       },
       "repo": {
         "id": 68474533,
-        "name": "test",
+        "name": "my-repo-name",
         "full_name": "my-org-name/my-repo-name",
         "owner": {
           "login": "my-org-name",
@@ -188,7 +188,7 @@
       },
       "repo": {
         "id": 68474533,
-        "name": "test",
+        "name": "my-repo-name",
         "full_name": "my-org-name/my-repo-name",
         "owner": {
           "login": "my-org-name",
@@ -318,7 +318,7 @@
   },
   "repository": {
     "id": 68474533,
-    "name": "test",
+    "name": "my-repo-name",
     "full_name": "my-org-name/my-repo-name",
     "owner": {
       "login": "my-org-name",

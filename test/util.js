@@ -61,7 +61,7 @@ const buildProject = (name, cardsInColumns) => {
   }
 }
 
-const buildRepoGraphQLResponse = (repoName, cards) => {
+const buildRepoGraphQLResponseNew = (repoName, cards) => {
   return {
     resource: {
       repository: {
@@ -74,7 +74,7 @@ const buildRepoGraphQLResponse = (repoName, cards) => {
   }
 }
 
-const buildOrgGraphQLResponse = (repoName, cards) => {
+const buildOrgGraphQLResponseNew = (repoName, cards) => {
   return {
     resource: {
       repository: {
@@ -88,8 +88,48 @@ const buildOrgGraphQLResponse = (repoName, cards) => {
   }
 }
 
+// query getCardAndColumnAutomationCards($url: URI!) {
+//   resource(url: $url) {
+//     ... on Issue {
+//       projectCards(first: 10) {
+//         nodes {
+//           id
+//           url
+//           column {
+//             name
+//             id
+//           }
+//           project {
+//             ${PROJECT_FRAGMENT}
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+const buildGraphQLResponse = (repoName, automationCards) => {
+  return {
+    resource: {
+      projectCards: {
+        nodes: [
+          {
+            id: 'card-id',
+            url: 'card-url',
+            column: {
+              name: 'column-name',
+              id: 'column-id'
+            },
+            project: buildProject(`project-${repoName}`, automationCards)
+          }
+        ]
+      }
+    }
+  }
+}
+
 module.exports = {
   buildCard,
-  buildRepoGraphQLResponse,
-  buildOrgGraphQLResponse
+  buildGraphQLResponse,
+  buildRepoGraphQLResponseNew,
+  buildOrgGraphQLResponseNew
 }

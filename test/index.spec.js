@@ -4,7 +4,8 @@ const projectBot = require('..')
 const Probot = require('probot')
 
 const pullrequestOpened = require('./fixtures/pull_request.opened.json')
-const {buildCard, buildRepoGraphQLResponse} = require('./util')
+const issueOpened = require('./fixtures/issue.opened.json')
+const {buildCard, buildRepoGraphQLResponseNew, buildGraphQLResponse} = require('./util')
 
 nock.disableNetConnect()
 
@@ -19,7 +20,7 @@ describe('project-bot', () => {
   })
 
   test('sanity', async () => {
-    let cards = [[]]
+    let automationCards = [[]]
 
     // Probot checks to see if it is installed
     nock('https://api.github.com')
@@ -28,7 +29,7 @@ describe('project-bot', () => {
 
     nock('https://api.github.com')
       .post('/graphql')
-      .reply(200, {data: buildRepoGraphQLResponse('repo-name', cards)})
+      .reply(200, {data: buildRepoGraphQLResponseNew('repo-name', automationCards)})
 
     // Receive a webhook event
     await probot.receive({ event: 'pull_request', payload: pullrequestOpened })
@@ -36,16 +37,32 @@ describe('project-bot', () => {
     expect(nock.isDone()).toEqual(true)
   })
 
-  test('pull_request.opened', async () => {
-    const cards = [[
-      buildCard({
-        new_pullrequest: [ 'test' ]
-      })
+  test('new_pullrequest', async () => {
+    await checkNewCommand({ new_pullrequest: [ 'my-repo-name' ] }, 'pull_request', pullrequestOpened)
+  })
+
+  test('new_issue', async () => {
+    await checkNewCommand({ new_issue: [ 'my-repo-name' ] }, 'issues', issueOpened)
+  })
+
+  test('closed_issue', async () => {
+    issueOpened.action = 'closed'
+    await checkSimpleCommand({ closed_issue: [ 'my-repo-name' ] }, 'issues', issueOpened)
+  })
+
+  // test('closed_pullrequest', async () => {
+  //   pullrequestOpened.action = 'closed'
+  //   await checkSimpleCommand({ closed_pullrequest: [ 'my-repo-name' ]}, 'pull_request', pullrequestOpened)
+  // })
+
+  const checkNewCommand = async (card, eventName, payload) => {
+    const automationCards = [[
+      buildCard(card)
     ]]
 
     nock('https://api.github.com')
       .post('/graphql')
-      .reply(200, {data: buildRepoGraphQLResponse('repo-name', cards)})
+      .reply(200, {data: buildRepoGraphQLResponseNew('repo-name', automationCards)})
 
     nock('https://api.github.com')
       .post('/graphql', (body) => {
@@ -55,8 +72,32 @@ describe('project-bot', () => {
       .reply(200)
 
     // Receive a webhook event
-    await probot.receive({ event: 'pull_request', payload: pullrequestOpened })
+    await probot.receive({ event: eventName, payload })
 
     expect(nock.isDone()).toEqual(true)
-  })
+  }
+
+  const checkSimpleCommand = async (card, eventName, payload) => {
+    const automationCards = [[
+      buildCard(card)
+    ]]
+
+    const s1 = nock('https://api.github.com')
+      .post('/graphql')
+      .reply(200, {data: buildGraphQLResponse('repo-name', automationCards)})
+
+    const s2 = nock('https://api.github.com')
+      .post('/graphql', (body) => {
+        expect(body.query).toMatchSnapshot()
+        return true
+      })
+      .reply(200)
+
+    // Receive a webhook event
+    await probot.receive({ event: eventName, payload })
+
+    expect(s1.isDone()).toEqual(true)
+    expect(s2.isDone()).toEqual(true)
+    expect(nock.isDone()).toEqual(true)
+  }
 })
