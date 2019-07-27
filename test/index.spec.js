@@ -37,8 +37,16 @@ describe('project-bot', () => {
     expect(nock.isDone()).toEqual(true)
   })
 
+  test('any new_pullrequest', async () => {
+    await checkNewCommand({ new_pullrequest: true }, 'pull_request', pullrequestOpened)
+  })
+
   test('new_pullrequest', async () => {
     await checkNewCommand({ new_pullrequest: [ 'my-repo-name' ] }, 'pull_request', pullrequestOpened)
+  })
+
+  test('any new_issue', async () => {
+    await checkNewCommand({ new_issue: true }, 'issues', issueOpened)
   })
 
   test('new_issue', async () => {
@@ -54,6 +62,13 @@ describe('project-bot', () => {
   //   pullrequestOpened.action = 'closed'
   //   await checkSimpleCommand({ closed_pullrequest: [ 'my-repo-name' ]}, 'pull_request', pullrequestOpened)
   // })
+
+  // test('merged_pullrequest', async () => {
+  //   pullrequestOpened.action = 'merged'
+  //   pullrequestOpened.pull_request.merged = true
+  //   await checkSimpleCommand({ merged_pullrequest: [ 'my-repo-name' ]}, 'pull_request', pullrequestOpened)
+  // })
+
 
   const checkNewCommand = async (card, eventName, payload) => {
     const automationCards = [[
