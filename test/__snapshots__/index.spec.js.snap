@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`project-bot pull_request.opened 1`] = `
+"
+              mutation createCard($contentId: ID!, $columnId: ID!) {
+                addProjectCard(input: {contentId: $contentId, projectColumnId: $columnId}) {
+                  clientMutationId
+                }
+              }
+            "
+`;
