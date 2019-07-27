@@ -140,4 +140,17 @@ module.exports = [
       }
     }
   }
-]
+].sort(({createsACard: a}, {createsACard: b}) => {
+  // Ensure that the createsACard commands are at the top of the list.
+  // This way a new Card is Created, and then it can still be moved during the
+  // same webhook event.
+  // For example, a new Issue that already has reviewers set should move to the
+  // "Needs Review" column.
+  if (a && !b) {
+    return -1
+  } else if (b && !a) {
+    return 1
+  } else {
+    return 0
+  }
+})
