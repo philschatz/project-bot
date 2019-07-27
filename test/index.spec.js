@@ -55,20 +55,46 @@ describe('project-bot', () => {
 
   test('closed_issue', async () => {
     issueOpened.action = 'closed'
-    await checkSimpleCommand({ closed_issue: [ 'my-repo-name' ] }, 'issues', issueOpened)
+    await checkSimpleCommand({ closed_issue: true }, 'issues', issueOpened)
   })
+  test('edited_issue', async () => {
+    issueOpened.action = 'edited'
+    await checkSimpleCommand({ edited_issue: true }, 'issues', issueOpened)
+  })
+  test('demilestoned_issue', async () => {
+    issueOpened.action = 'demilestoned'
+    await checkSimpleCommand({ demilestoned_issue: true }, 'issues', issueOpened)
+  })
+  test('milestoned_issue', async () => {
+    issueOpened.action = 'milestoned'
+    await checkSimpleCommand({ milestoned_issue: true }, 'issues', issueOpened)
+  })
+  test('reopened_issue', async () => {
+    issueOpened.action = 'reopened'
+    await checkSimpleCommand({ reopened_issue: true }, 'issues', issueOpened)
+  })
+
+  // test('reopened_pullrequest', async () => {
+  //   pullrequestOpened.action = 'reopened'
+  //   await checkSimpleCommand({ reopened_pullrequest: true }, 'pullrequest', pullrequestOpened)
+  // })
+
+  // test('added_reviewer', async () => {
+  //   pullrequestOpened.action = 'review_requested'
+  //   await checkSimpleCommand({ added_reviewer: true }, 'pullrequest', pullrequestOpened)
+  // })
 
   // test('closed_pullrequest', async () => {
   //   pullrequestOpened.action = 'closed'
+  //   pullrequestOpened.pull_request.merged = false
   //   await checkSimpleCommand({ closed_pullrequest: [ 'my-repo-name' ]}, 'pull_request', pullrequestOpened)
   // })
 
   // test('merged_pullrequest', async () => {
-  //   pullrequestOpened.action = 'merged'
+  //   pullrequestOpened.action = 'closed'
   //   pullrequestOpened.pull_request.merged = true
-  //   await checkSimpleCommand({ merged_pullrequest: [ 'my-repo-name' ]}, 'pull_request', pullrequestOpened)
+  //   await checkSimpleCommand({ merged_pullrequest: true }, 'pull_request', pullrequestOpened)
   // })
-
 
   const checkNewCommand = async (card, eventName, payload) => {
     const automationCards = [[
