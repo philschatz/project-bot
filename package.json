@@ -6,8 +6,8 @@
   "scripts": {
     "start": "probot run ./src/index.js",
     "lint": "standard --fix",
-    "test": "jest --coverage && standard",
-    "test:fix": "jest --coverage --updateSnapshot && standard --fix"
+    "test": "jest && standard",
+    "test:fix": "jest --updateSnapshot && standard --fix"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,10 @@
   "now": {
     "alias": "project-bot",
     "dotenv": ".env"
+  },
+  "jest": {
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true
   },
   "dependencies": {
     "commonmark": "^0.28.1",
