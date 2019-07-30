@@ -128,7 +128,7 @@ module.exports = [
     ruleMatcher: async function (logger, context, ruleArgs) {
       // See https://developer.github.com/v3/activity/events/types/#pullrequestreviewevent
       // Check if there are any Pending or Rejected reviews and ensure there is at least one Accepted one
-      const { data: reviews } = await context.github.pullRequests.getReviews(context.issue())
+      const { data: reviews } = await context.github.pullRequests.listReviews(context.issue())
       // Check that there is at least one Accepted
       const hasAccepted = reviews.filter((review) => review.state === 'APPROVED').length >= 1
       const hasRejections = reviews.filter((review) => review.state === 'REQUEST_CHANGES').length >= 1

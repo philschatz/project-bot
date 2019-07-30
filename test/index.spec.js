@@ -1,7 +1,7 @@
 /* eslint-env jest */
 const nock = require('nock')
 const projectBot = require('..')
-const Probot = require('probot')
+const { Probot } = require('probot')
 
 const pullrequestOpened = require('./fixtures/pull_request.opened.json')
 const issueOpened = require('./fixtures/issue.opened.json')
@@ -14,7 +14,7 @@ describe('project-bot integration tests', () => {
 
   beforeEach(() => {
     nock.cleanAll()
-    probot = Probot({})
+    probot = new Probot({ githubToken: 'faketoken' })
     const app = probot.load(projectBot)
     // just return a test token
     app.app = () => 'test'
@@ -23,17 +23,12 @@ describe('project-bot integration tests', () => {
   test('sanity', async () => {
     const automationCards = [[]]
 
-    // Probot checks to see if it is installed
-    nock('https://api.github.com')
-      .post('/app/installations/12345/access_tokens')
-      .reply(200, { token: 'test' })
-
     nock('https://api.github.com')
       .post('/graphql')
       .reply(200, { data: getAllProjectCards('repo-name', automationCards) })
 
     // Receive a webhook event
-    await probot.receive({ event: 'pull_request', payload: pullrequestOpened })
+    await probot.receive({ id: 'event-id1', name: 'pull_request', payload: pullrequestOpened })
 
     expect(nock.isDone()).toEqual(true)
   })
@@ -338,7 +333,7 @@ describe('project-bot integration tests', () => {
     }
 
     // Receive a webhook event
-    await probot.receive({ event: eventName, payload })
+    await probot.receive({ id: 'event-id1', name: eventName, payload })
 
     expect(nock.isDone()).toEqual(true)
   }
@@ -372,7 +367,7 @@ describe('project-bot integration tests', () => {
     }
 
     // Receive a webhook event
-    await probot.receive({ event: eventName, payload })
+    await probot.receive({ id: 'event-id1', name: eventName, payload })
 
     if (!nock.isDone()) {
       console.error(nock.pendingMocks())
@@ -413,7 +408,7 @@ describe('project-bot integration tests', () => {
     }
 
     // Receive a webhook event
-    await probot.receive({ event: eventName, payload })
+    await probot.receive({ id: 'event-id1', name: eventName, payload })
 
     if (!nock.isDone()) {
       console.error(nock.pendingMocks())

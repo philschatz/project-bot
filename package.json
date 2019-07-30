@@ -6,7 +6,8 @@
   "scripts": {
     "start": "probot run ./src/index.js",
     "lint": "standard --fix",
-    "test": "jest && standard",
+    "test": "jest",
+    "posttest": "standard",
     "test:fix": "jest --updateSnapshot && standard --fix"
   },
   "repository": {
@@ -28,7 +29,7 @@
   },
   "dependencies": {
     "commonmark": "^0.29.0",
-    "probot": "^6.1.0"
+    "probot": "^7.5"
   },
   "devDependencies": {
     "jest": "^24.8.0",
