@@ -38,7 +38,7 @@ function parseMarkdown (card) {
         if (args.length === 0 && node.next && node.next.literal) {
           args = node.next.literal.trim().split(' ').map((arg) => arg.trim())
         }
-        parsedRules.push({ ruleName: node.literal, ruleArgs: args})
+        parsedRules.push({ruleName: node.literal, ruleArgs: args})
       }
     }
   }
