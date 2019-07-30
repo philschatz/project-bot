@@ -173,6 +173,14 @@ describe('project-bot', () => {
     })
   })
 
+  test('accepted_pullrequest', async () => {
+    const payload = {...pullrequestOpened}
+    payload.action = 'submitted'
+    await checkReviewCommand(1, { accepted_pullrequest: true }, 'pull_request_review', payload, [
+      {state: 'APPROVED'}
+    ])
+  })
+
   const checkNewCommand = async (card, eventName, payload) => {
     const automationCards = [[
       buildCard(card)
@@ -210,6 +218,45 @@ describe('project-bot', () => {
           return r1
         })
     }
+
+    // mutation moveCard
+    nock('https://api.github.com')
+      .post('/graphql')
+      .reply(200, (uri, requestBody) => {
+        expect(requestBody.query).toContain('mutation moveCard')
+        expect(requestBody.variables.cardId).toBeTruthy()
+        expect(requestBody.variables.columnId).toBeTruthy()
+      })
+
+    // Receive a webhook event
+    await probot.receive({ event: eventName, payload })
+
+    if (!nock.isDone()) {
+      console.error(nock.pendingMocks())
+      expect(nock.isDone()).toEqual(true)
+    }
+  }
+
+  const checkReviewCommand = async (numGetCard, card, eventName, payload, reviews) => {
+    const automationCards = [[
+      buildCard(card)
+    ]]
+
+    // query getCardAndColumnAutomationCards
+    const r1 = {data: getCardAndColumnAutomationCards('repo-name', automationCards)}
+    for (let i = 0; i < numGetCard; i++) {
+      nock('https://api.github.com')
+        .post('/graphql')
+        .reply(200, (uri, requestBody) => {
+          expect(requestBody.query).toContain('query getCardAndColumnAutomationCards')
+          expect(requestBody.variables.url).toBeTruthy()
+          return r1
+        })
+    }
+
+    nock('https://api.github.com')
+      .get('/repos/my-org-name/my-repo-name/pulls/113/reviews')
+      .reply(200, reviews)
 
     // mutation moveCard
     nock('https://api.github.com')
