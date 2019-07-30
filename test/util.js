@@ -1,6 +1,12 @@
 // rules: { assigned_issue: true, new_pullrequest: ['repo1', 'repo2']}
 const buildCard = (rules) => {
   let m = new Map()
+
+  // return null when there is no note (for testing cards without notes)
+  if (rules === null) {
+    return null
+  }
+
   for (const key of Object.keys(rules)) {
     m.set(key, rules[key])
   }

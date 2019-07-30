@@ -9,10 +9,11 @@ const {buildCard, getAllProjectCards, getCardAndColumnAutomationCards} = require
 
 nock.disableNetConnect()
 
-describe('project-bot', () => {
+describe('project-bot integration tests', () => {
   let probot
 
   beforeEach(() => {
+    nock.cleanAll()
     probot = Probot({})
     const app = probot.load(projectBot)
     // just return a test token
@@ -283,6 +284,42 @@ describe('project-bot', () => {
     })
   })
 
+  describe('misc', () => {
+    test('ignores non-note cards', async () => {
+      const payload = {...issueOpened}
+      payload.action = 'labeled'
+      payload.label = {name: 'testlabel'}
+
+      await checkCommand(false, 1, null, 'issues', payload)
+    })
+
+    test('parses backwards-compatible cards', async () => {
+      const payload = {...issueOpened}
+      payload.action = 'labeled'
+      payload.label = {name: 'testlabel'}
+
+      await checkCommand(true, 1, `###### Automation Rules
+
+<!-- Documentation: https://github.com/philschatz/project-bot -->
+
+- \`added_label\` testlabel
+`, 'issues', payload)
+    })
+
+    test('ignores malformed cards (backticks in the wrong place)', async () => {
+      const payload = {...issueOpened}
+      payload.action = 'labeled'
+      payload.label = {name: 'testlabel'}
+
+      await checkCommand(false, 1, `###### Automation Rules
+  
+  <!-- Documentation: https://github.com/philschatz/project-bot -->
+  
+  ** \`added_label\` ** testlabel
+  `, 'issues', payload)
+    })
+  })
+
   const checkNewCommand = async (createsACard, card, eventName, payload) => {
     const automationCards = [[
       buildCard(card)
@@ -308,7 +345,7 @@ describe('project-bot', () => {
 
   const checkCommand = async (shouldMove, numGetCard, card, eventName, payload) => {
     const automationCards = [[
-      buildCard(card)
+      typeof card === 'string' ? card : buildCard(card)
     ]]
 
     // query getCardAndColumnAutomationCards
