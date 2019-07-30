@@ -1,6 +1,6 @@
 // rules: { assigned_issue: true, new_pullrequest: ['repo1', 'repo2']}
 const buildCard = (rules) => {
-  let m = new Map()
+  const m = new Map()
 
   // return null when there is no note (for testing cards without notes)
   if (rules === null) {
@@ -42,7 +42,7 @@ const buildProject = (name, cardsInColumns) => {
     columns: {
       nodes: cardsInColumns.map((columnCards) => {
         const id = freshId()
-        let cards = columnCards.map((note) => {
+        const cards = columnCards.map((note) => {
           const id = freshId()
           return {
             id,
