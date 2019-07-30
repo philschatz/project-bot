@@ -247,13 +247,12 @@ describe('project-bot integration tests', () => {
   })
 
   describe('pullrequest reviews', () => {
-
     test('added_reviewer', async () => {
       const payload = {...pullrequestOpened}
       payload.action = 'review_requested'
       await checkCommand(true, 1, { added_reviewer: true }, 'pull_request', payload)
     })
-  
+
     test('accepted_pullrequest', async () => {
       const payload = {...pullrequestOpened}
       payload.action = 'submitted'
