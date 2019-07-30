@@ -106,6 +106,73 @@ describe('project-bot', () => {
     await checkCommand(1, { added_reviewer: true }, 'pull_request', payload)
   })
 
+  describe('assignments', () => {
+    test('assigned_to_issue', async () => {
+      const payload = {...issueOpened}
+      payload.action = 'assigned'
+      payload.assignee = { login: 'testuser' }
+      await checkCommand(2, { assigned_to_issue: ['testuser'] }, 'issues', payload)
+    })
+
+    test('assigned_issue', async () => {
+      const payload = {...issueOpened}
+      payload.action = 'assigned'
+      payload.issue.assignees = [{ login: 'testuser' }]
+      await checkCommand(2, { assigned_issue: true }, 'issues', payload)
+    })
+
+    test('unassigned_issue', async () => {
+      const payload = {...issueOpened}
+      payload.action = 'unassigned'
+      payload.issue.assignees = []
+      await checkCommand(1, { unassigned_issue: true }, 'issues', payload)
+    })
+
+    test('assigned_pullrequest', async () => {
+      const payload = {...pullrequestOpened}
+      payload.action = 'assigned'
+      payload.pull_request.assignees = [{ login: 'testuser' }]
+      await checkCommand(1, { assigned_pullrequest: true }, 'pull_request', payload)
+    })
+
+    test('unassigned_pullrequest', async () => {
+      const payload = {...pullrequestOpened}
+      payload.action = 'unassigned'
+      payload.pull_request.assignees = []
+      await checkCommand(1, { unassigned_pullrequest: true }, 'pull_request', payload)
+    })
+  })
+
+  describe('labels', () => {
+    test('added_label (issue)', async () => {
+      const payload = {...issueOpened}
+      payload.action = 'labeled'
+      payload.label = {name: 'testlabel'}
+      await checkCommand(1, { added_label: ['testlabel'] }, 'issues', payload)
+    })
+
+    test('added_label (pullrequest)', async () => {
+      const payload = {...pullrequestOpened}
+      payload.action = 'labeled'
+      payload.label = {name: 'testlabel'}
+      await checkCommand(1, { added_label: ['testlabel'] }, 'pull_request', payload)
+    })
+
+    test('removed_label (issue)', async () => {
+      const payload = {...issueOpened}
+      payload.action = 'unlabeled'
+      payload.label = {name: 'testlabel'}
+      await checkCommand(1, { removed_label: ['testlabel'] }, 'issues', payload)
+    })
+
+    test('removed_label (pullrequest)', async () => {
+      const payload = {...pullrequestOpened}
+      payload.action = 'unlabeled'
+      payload.label = {name: 'testlabel'}
+      await checkCommand(1, { removed_label: ['testlabel'] }, 'pull_request', payload)
+    })
+  })
+
   const checkNewCommand = async (card, eventName, payload) => {
     const automationCards = [[
       buildCard(card)
@@ -156,6 +223,9 @@ describe('project-bot', () => {
     // Receive a webhook event
     await probot.receive({ event: eventName, payload })
 
-    expect(nock.isDone()).toEqual(true)
+    if (!nock.isDone()) {
+      console.error(nock.pendingMocks())
+      expect(nock.isDone()).toEqual(true)
+    }
   }
 })
