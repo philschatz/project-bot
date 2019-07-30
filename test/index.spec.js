@@ -5,7 +5,7 @@ const Probot = require('probot')
 
 const pullrequestOpened = require('./fixtures/pull_request.opened.json')
 const issueOpened = require('./fixtures/issue.opened.json')
-const {buildCard, buildRepoGraphQLResponseNew, buildGraphQLResponse} = require('./util')
+const {buildCard, getAllProjectCards, getCardAndColumnAutomationCards} = require('./util')
 
 nock.disableNetConnect()
 
@@ -29,7 +29,7 @@ describe('project-bot', () => {
 
     nock('https://api.github.com')
       .post('/graphql')
-      .reply(200, {data: buildRepoGraphQLResponseNew('repo-name', automationCards)})
+      .reply(200, {data: getAllProjectCards('repo-name', automationCards)})
 
     // Receive a webhook event
     await probot.receive({ event: 'pull_request', payload: pullrequestOpened })
@@ -37,80 +37,89 @@ describe('project-bot', () => {
     expect(nock.isDone()).toEqual(true)
   })
 
-  test('any new_pullrequest', async () => {
-    await checkNewCommand({ new_pullrequest: true }, 'pull_request', pullrequestOpened)
+  describe('new_* commands', () => {
+    test('any new_pullrequest', async () => {
+      await checkNewCommand({ new_pullrequest: true }, 'pull_request', pullrequestOpened)
+    })
+
+    test('new_pullrequest', async () => {
+      await checkNewCommand({ new_pullrequest: [ 'my-repo-name' ] }, 'pull_request', pullrequestOpened)
+    })
+
+    test('any new_issue', async () => {
+      await checkNewCommand({ new_issue: true }, 'issues', issueOpened)
+    })
+
+    test('new_issue', async () => {
+      await checkNewCommand({ new_issue: [ 'my-repo-name' ] }, 'issues', issueOpened)
+    })
   })
 
-  test('new_pullrequest', async () => {
-    await checkNewCommand({ new_pullrequest: [ 'my-repo-name' ] }, 'pull_request', pullrequestOpened)
+  describe('simple commands', () => {
+    test('closed_issue', async () => {
+      issueOpened.action = 'closed'
+      await checkCommand(1, { closed_issue: true }, 'issues', issueOpened)
+    })
+    test('edited_issue', async () => {
+      issueOpened.action = 'edited'
+      await checkCommand(1, { edited_issue: true }, 'issues', issueOpened)
+    })
+    test('demilestoned_issue', async () => {
+      issueOpened.action = 'demilestoned'
+      await checkCommand(1, { demilestoned_issue: true }, 'issues', issueOpened)
+    })
+    test('milestoned_issue', async () => {
+      issueOpened.action = 'milestoned'
+      await checkCommand(1, { milestoned_issue: true }, 'issues', issueOpened)
+    })
+    test('reopened_issue', async () => {
+      issueOpened.action = 'reopened'
+      await checkCommand(1, { reopened_issue: true }, 'issues', issueOpened)
+    })
   })
 
-  test('any new_issue', async () => {
-    await checkNewCommand({ new_issue: true }, 'issues', issueOpened)
+  describe('slightly complicated commands (kludgy because the code makes too many GraphQL requests)', () => {
+    test('closed_pullrequest', async () => {
+      const payload = {...pullrequestOpened}
+      payload.action = 'closed'
+      payload.pull_request.merged = false
+      await checkCommand(2, { closed_pullrequest: true }, 'pull_request', payload)
+    })
+
+    test('merged_pullrequest', async () => {
+      const payload = {...pullrequestOpened}
+      payload.action = 'closed'
+      payload.pull_request.merged = true
+      await checkCommand(2, { merged_pullrequest: true }, 'pull_request', payload)
+    })
+
+    test('reopened_pullrequest', async () => {
+      const payload = {...pullrequestOpened}
+      payload.action = 'reopened'
+      await checkCommand(1, { reopened_pullrequest: true }, 'pull_request', payload)
+    })
   })
 
-  test('new_issue', async () => {
-    await checkNewCommand({ new_issue: [ 'my-repo-name' ] }, 'issues', issueOpened)
+  test('added_reviewer', async () => {
+    const payload = {...pullrequestOpened}
+    payload.action = 'review_requested'
+    await checkCommand(1, { added_reviewer: true }, 'pull_request', payload)
   })
-
-  test('closed_issue', async () => {
-    issueOpened.action = 'closed'
-    await checkSimpleCommand({ closed_issue: true }, 'issues', issueOpened)
-  })
-  test('edited_issue', async () => {
-    issueOpened.action = 'edited'
-    await checkSimpleCommand({ edited_issue: true }, 'issues', issueOpened)
-  })
-  test('demilestoned_issue', async () => {
-    issueOpened.action = 'demilestoned'
-    await checkSimpleCommand({ demilestoned_issue: true }, 'issues', issueOpened)
-  })
-  test('milestoned_issue', async () => {
-    issueOpened.action = 'milestoned'
-    await checkSimpleCommand({ milestoned_issue: true }, 'issues', issueOpened)
-  })
-  test('reopened_issue', async () => {
-    issueOpened.action = 'reopened'
-    await checkSimpleCommand({ reopened_issue: true }, 'issues', issueOpened)
-  })
-
-  // test('reopened_pullrequest', async () => {
-  //   pullrequestOpened.action = 'reopened'
-  //   await checkSimpleCommand({ reopened_pullrequest: true }, 'pullrequest', pullrequestOpened)
-  // })
-
-  // test('added_reviewer', async () => {
-  //   pullrequestOpened.action = 'review_requested'
-  //   await checkSimpleCommand({ added_reviewer: true }, 'pullrequest', pullrequestOpened)
-  // })
-
-  // test('closed_pullrequest', async () => {
-  //   pullrequestOpened.action = 'closed'
-  //   pullrequestOpened.pull_request.merged = false
-  //   await checkSimpleCommand({ closed_pullrequest: true }, 'pull_request', pullrequestOpened)
-  // })
-
-  // test('merged_pullrequest', async () => {
-  //   pullrequestOpened.action = 'closed'
-  //   pullrequestOpened.pull_request.merged = true
-  //   await checkSimpleCommand({ merged_pullrequest: true }, 'pull_request', pullrequestOpened)
-  // })
 
   const checkNewCommand = async (card, eventName, payload) => {
     const automationCards = [[
       buildCard(card)
     ]]
 
+    // query getAllProjectCards
     nock('https://api.github.com')
       .post('/graphql')
-      .reply(200, {data: buildRepoGraphQLResponseNew('repo-name', automationCards)})
+      .reply(200, {data: getAllProjectCards('repo-name', automationCards)})
 
+    // mutation createCard
     nock('https://api.github.com')
-      .post('/graphql', (body) => {
-        expect(body.variables).toMatchSnapshot()
-        return true
-      })
-      .reply(200)
+      .post('/graphql')
+      .reply(200, {notNothing: 'sdlfjsdlkfj'})
 
     // Receive a webhook event
     await probot.receive({ event: eventName, payload })
@@ -118,27 +127,35 @@ describe('project-bot', () => {
     expect(nock.isDone()).toEqual(true)
   }
 
-  const checkSimpleCommand = async (card, eventName, payload) => {
+  const checkCommand = async (numGetCard, card, eventName, payload) => {
     const automationCards = [[
       buildCard(card)
     ]]
 
-    const s1 = nock('https://api.github.com')
-      .post('/graphql')
-      .reply(200, {data: buildGraphQLResponse('repo-name', automationCards)})
+    // query getCardAndColumnAutomationCards
+    const r1 = {data: getCardAndColumnAutomationCards('repo-name', automationCards)}
+    for (let i = 0; i < numGetCard; i++) {
+      nock('https://api.github.com')
+        .post('/graphql')
+        .reply(200, (uri, requestBody) => {
+          expect(requestBody.query).toContain('query getCardAndColumnAutomationCards')
+          expect(requestBody.variables.url).toBeTruthy()
+          return r1
+        })
+    }
 
-    const s2 = nock('https://api.github.com')
-      .post('/graphql', (body) => {
-        expect(body.variables).toMatchSnapshot()
-        return true
+    // mutation moveCard
+    nock('https://api.github.com')
+      .post('/graphql')
+      .reply(200, (uri, requestBody) => {
+        expect(requestBody.query).toContain('mutation moveCard')
+        expect(requestBody.variables.cardId).toBeTruthy()
+        expect(requestBody.variables.columnId).toBeTruthy()
       })
-      .reply(200)
 
     // Receive a webhook event
     await probot.receive({ event: eventName, payload })
 
-    expect(s1.isDone()).toEqual(true)
-    expect(s2.isDone()).toEqual(true)
     expect(nock.isDone()).toEqual(true)
   }
 })

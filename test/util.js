@@ -61,7 +61,7 @@ const buildProject = (name, cardsInColumns) => {
   }
 }
 
-const buildRepoGraphQLResponseNew = (repoName, cards) => {
+const getAllProjectCards = (repoName, cards) => {
   return {
     resource: {
       repository: {
@@ -107,7 +107,7 @@ const buildOrgGraphQLResponseNew = (repoName, cards) => {
 //     }
 //   }
 // }
-const buildGraphQLResponse = (repoName, automationCards) => {
+const getCardAndColumnAutomationCards = (repoName, automationCards) => {
   return {
     resource: {
       projectCards: {
@@ -129,7 +129,7 @@ const buildGraphQLResponse = (repoName, automationCards) => {
 
 module.exports = {
   buildCard,
-  buildGraphQLResponse,
-  buildRepoGraphQLResponseNew,
+  getCardAndColumnAutomationCards,
+  getAllProjectCards,
   buildOrgGraphQLResponseNew
 }
