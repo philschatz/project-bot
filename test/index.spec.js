@@ -87,7 +87,7 @@ describe('project-bot', () => {
   // test('closed_pullrequest', async () => {
   //   pullrequestOpened.action = 'closed'
   //   pullrequestOpened.pull_request.merged = false
-  //   await checkSimpleCommand({ closed_pullrequest: [ 'my-repo-name' ]}, 'pull_request', pullrequestOpened)
+  //   await checkSimpleCommand({ closed_pullrequest: true }, 'pull_request', pullrequestOpened)
   // })
 
   // test('merged_pullrequest', async () => {
@@ -107,7 +107,7 @@ describe('project-bot', () => {
 
     nock('https://api.github.com')
       .post('/graphql', (body) => {
-        expect(body.query).toMatchSnapshot()
+        expect(body.variables).toMatchSnapshot()
         return true
       })
       .reply(200)
@@ -129,7 +129,7 @@ describe('project-bot', () => {
 
     const s2 = nock('https://api.github.com')
       .post('/graphql', (body) => {
-        expect(body.query).toMatchSnapshot()
+        expect(body.variables).toMatchSnapshot()
         return true
       })
       .reply(200)
