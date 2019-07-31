@@ -20,7 +20,7 @@ function parseMarkdown (card) {
   const parsedRules = []
   let walkEvent
   while ((walkEvent = walker.next())) {
-    const {node} = walkEvent
+    const { node } = walkEvent
     // Each item should be simple text that contains the rule, followed by a space,
     // followed by any arguments (sometimes wrapped in spaces)
     if (walkEvent.entering && node.type === 'code') {
@@ -38,7 +38,7 @@ function parseMarkdown (card) {
         if (args.length === 0 && node.next && node.next.literal) {
           args = node.next.literal.trim().split(' ').map((arg) => arg.trim())
         }
-        parsedRules.push({ruleName: node.literal, ruleArgs: args})
+        parsedRules.push({ ruleName: node.literal, ruleArgs: args })
       }
     }
   }
@@ -54,15 +54,15 @@ module.exports = function extractAutomationRules (projects) {
   projects.forEach((project) => {
     project.columns.nodes.forEach((column) => {
       column.firstCards.nodes.forEach((card) => {
-        allCards.set(card.id, {card, column})
+        allCards.set(card.id, { card, column })
       })
       column.lastCards.nodes.forEach((card) => {
-        allCards.set(card.id, {card, column})
+        allCards.set(card.id, { card, column })
       })
     })
   })
 
-  allCards.forEach(({card, column}) => {
+  allCards.forEach(({ card, column }) => {
     const rules = parseMarkdown(card)
     rules.forEach((r) => {
       automationRules.push({

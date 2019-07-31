@@ -12,10 +12,10 @@ async function sleep (ms) {
 // Often, there is a delay between the webhook firing and GaphQL updating
 async function retryQuery (context, query, args) {
   try {
-    return await context.github.query(query, args)
+    return await context.github.graphql(query, args)
   } catch (err) {
     await sleep(1000)
-    return context.github.query(query, args)
+    return context.github.graphql(query, args)
   }
 }
 
@@ -49,14 +49,14 @@ const PROJECT_FRAGMENT = `
 `
 
 module.exports = (robot) => {
-  const logger = robot.log.child({name: 'project-bot'})
+  const logger = robot.log.child({ name: 'project-bot' })
   // Increase the maxListenerCount by the number of automationCommands
   // because we register a bunch of listeners
   robot.events.setMaxListeners(robot.events.getMaxListeners() + automationCommands.length)
   logger.info(`Starting up`)
 
   // Register all of the automation commands
-  automationCommands.forEach(({createsACard, webhookName, ruleName, ruleMatcher}) => {
+  automationCommands.forEach(({ createsACard, webhookName, ruleName, ruleMatcher }) => {
     logger.trace(`Attaching listener for ${webhookName}`)
     robot.on(webhookName, async function (context) {
       const issueUrl = context.payload.issue ? context.payload.issue.html_url : context.payload.pull_request.html_url.replace('/pull/', '/issues/')
@@ -92,8 +92,8 @@ module.exports = (robot) => {
               }
             }
           }
-        `, {issueUrl: issueUrl})
-        const {resource} = graphResult
+        `, { issueUrl: issueUrl })
+        const { resource } = graphResult
 
         let allProjects = []
         if (resource.repository.owner.projects) {
@@ -105,25 +105,25 @@ module.exports = (robot) => {
         }
 
         // Loop through all of the Automation Cards and see if any match
-        const automationRules = extractAutomationRules(allProjects).filter(({ruleName: rn}) => rn === ruleName)
+        const automationRules = extractAutomationRules(allProjects).filter(({ ruleName: rn }) => rn === ruleName)
 
-        for (const {column, ruleArgs} of automationRules) {
+        for (const { column, ruleArgs } of automationRules) {
           if (await ruleMatcher(logger, context, ruleArgs)) {
             logger.info(`Creating Card for "${issueUrl}" to column ${column.id} because of "${ruleName}" and value: "${ruleArgs}"`)
-            await context.github.query(`
+            await context.github.graphql(`
               mutation createCard($contentId: ID!, $columnId: ID!) {
                 addProjectCard(input: {contentId: $contentId, projectColumnId: $columnId}) {
                   clientMutationId
                 }
               }
-            `, {contentId: resource.id, columnId: column.id})
+            `, { contentId: resource.id, columnId: column.id })
           }
         }
       } else {
         // Check if we need to move the Issue (or Pull request)
         const graphResult = await retryQuery(context, `
-          query getCardAndColumnAutomationCards($url: URI!) {
-            resource(url: $url) {
+          query getCardAndColumnAutomationCards($issueUrl: URI!) {
+            resource(url: $issueUrl) {
               ... on Issue {
                 projectCards(first: 10) {
                   nodes {
@@ -141,9 +141,9 @@ module.exports = (robot) => {
               }
             }
           }
-        `, {url: issueUrl})
+        `, { issueUrl: issueUrl })
         logger.debug(graphResult, 'Retrieved results')
-        const {resource} = graphResult
+        const { resource } = graphResult
         // sometimes there are no projectCards
         if (!resource.projectCards) {
           logger.error(issueUrl, resource, 'Not even an array for project cards. Odd')
@@ -151,18 +151,18 @@ module.exports = (robot) => {
         const cardsForIssue = resource.projectCards ? resource.projectCards.nodes : []
 
         for (const issueCard of cardsForIssue) {
-          const automationRules = extractAutomationRules([issueCard.project]).filter(({ruleName: rn}) => rn === ruleName)
+          const automationRules = extractAutomationRules([issueCard.project]).filter(({ ruleName: rn }) => rn === ruleName)
 
-          for (const {column, ruleArgs} of automationRules) {
+          for (const { column, ruleArgs } of automationRules) {
             if (await ruleMatcher(logger, context, ruleArgs)) {
               logger.info(`Moving Card ${issueCard.id} for "${issueUrl}" to column ${column.id} because of "${ruleName}" and value: "${ruleArgs}"`)
-              await context.github.query(`
+              await context.github.graphql(`
                 mutation moveCard($cardId: ID!, $columnId: ID!) {
                   moveProjectCard(input: {cardId: $cardId, columnId: $columnId}) {
                     clientMutationId
                   }
                 }
-              `, {cardId: issueCard.id, columnId: column.id})
+              `, { cardId: issueCard.id, columnId: column.id })
             }
           }
         }
