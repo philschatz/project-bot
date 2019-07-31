@@ -349,8 +349,9 @@ describe('project-bot integration tests', () => {
       nock('https://api.github.com')
         .post('/graphql')
         .reply(200, (uri, requestBody) => {
+          requestBody = JSON.parse(requestBody)
           expect(requestBody.query).toContain('query getCardAndColumnAutomationCards')
-          expect(requestBody.variables.url).toBeTruthy()
+          expect(requestBody.variables.issueUrl).toBeTruthy()
           return r1
         })
     }
@@ -360,6 +361,7 @@ describe('project-bot integration tests', () => {
       nock('https://api.github.com')
         .post('/graphql')
         .reply(200, (uri, requestBody) => {
+          requestBody = JSON.parse(requestBody)
           expect(requestBody.query).toContain('mutation moveCard')
           expect(requestBody.variables.cardId).toBeTruthy()
           expect(requestBody.variables.columnId).toBeTruthy()
@@ -386,8 +388,9 @@ describe('project-bot integration tests', () => {
       nock('https://api.github.com')
         .post('/graphql')
         .reply(200, (uri, requestBody) => {
+          requestBody = JSON.parse(requestBody)
           expect(requestBody.query).toContain('query getCardAndColumnAutomationCards')
-          expect(requestBody.variables.url).toBeTruthy()
+          expect(requestBody.variables.issueUrl).toBeTruthy()
           return r1
         })
     }
@@ -401,6 +404,7 @@ describe('project-bot integration tests', () => {
       nock('https://api.github.com')
         .post('/graphql')
         .reply(200, (uri, requestBody) => {
+          requestBody = JSON.parse(requestBody)
           expect(requestBody.query).toContain('mutation moveCard')
           expect(requestBody.variables.cardId).toBeTruthy()
           expect(requestBody.variables.columnId).toBeTruthy()

@@ -12,10 +12,10 @@ async function sleep (ms) {
 // Often, there is a delay between the webhook firing and GaphQL updating
 async function retryQuery (context, query, args) {
   try {
-    return await context.github.query(query, args)
+    return await context.github.graphql(query, args)
   } catch (err) {
     await sleep(1000)
-    return context.github.query(query, args)
+    return context.github.graphql(query, args)
   }
 }
 
@@ -110,7 +110,7 @@ module.exports = (robot) => {
         for (const { column, ruleArgs } of automationRules) {
           if (await ruleMatcher(logger, context, ruleArgs)) {
             logger.info(`Creating Card for "${issueUrl}" to column ${column.id} because of "${ruleName}" and value: "${ruleArgs}"`)
-            await context.github.query(`
+            await context.github.graphql(`
               mutation createCard($contentId: ID!, $columnId: ID!) {
                 addProjectCard(input: {contentId: $contentId, projectColumnId: $columnId}) {
                   clientMutationId
@@ -122,8 +122,8 @@ module.exports = (robot) => {
       } else {
         // Check if we need to move the Issue (or Pull request)
         const graphResult = await retryQuery(context, `
-          query getCardAndColumnAutomationCards($url: URI!) {
-            resource(url: $url) {
+          query getCardAndColumnAutomationCards($issueUrl: URI!) {
+            resource(url: $issueUrl) {
               ... on Issue {
                 projectCards(first: 10) {
                   nodes {
@@ -141,7 +141,7 @@ module.exports = (robot) => {
               }
             }
           }
-        `, { url: issueUrl })
+        `, { issueUrl: issueUrl })
         logger.debug(graphResult, 'Retrieved results')
         const { resource } = graphResult
         // sometimes there are no projectCards
@@ -156,7 +156,7 @@ module.exports = (robot) => {
           for (const { column, ruleArgs } of automationRules) {
             if (await ruleMatcher(logger, context, ruleArgs)) {
               logger.info(`Moving Card ${issueCard.id} for "${issueUrl}" to column ${column.id} because of "${ruleName}" and value: "${ruleArgs}"`)
-              await context.github.query(`
+              await context.github.graphql(`
                 mutation moveCard($cardId: ID!, $columnId: ID!) {
                   moveProjectCard(input: {cardId: $cardId, columnId: $columnId}) {
                     clientMutationId
