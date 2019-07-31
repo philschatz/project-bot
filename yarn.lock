@@ -4076,7 +4076,7 @@ pretty-format@^24.8.0:
     ansi-styles "^3.2.0"
     react-is "^16.8.4"
 
-probot@^9.0:
+probot@^9.2.20:
   version "9.2.20"
   resolved "https://registry.yarnpkg.com/probot/-/probot-9.2.20.tgz#302a85a937266f028398885571e25662ade74ddc"
   integrity sha512-GDzyR+yNqMKneRfpwnAku099sIGpJ5b2Zxqncw9/QvdM13DmDLNN0hL9dC6QJR2WefcXjjMbQOIO65GhnLSOVQ==
