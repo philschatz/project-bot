@@ -28,7 +28,7 @@ describe('project-bot integration tests', () => {
       .reply(200, { data: getAllProjectCards('repo-name', automationCards) })
 
     // Receive a webhook event
-    await probot.receive({ id: 'event-id1', name: 'pull_request', payload: pullrequestOpened })
+    await probot.receive({ name: 'pull_request', payload: pullrequestOpened })
 
     expect(nock.isDone()).toEqual(true)
   })
@@ -329,11 +329,11 @@ describe('project-bot integration tests', () => {
       // mutation createCard
       nock('https://api.github.com')
         .post('/graphql')
-        .reply(200, { notNothing: 'sdlfjsdlkfj' })
+        .reply(200)
     }
 
     // Receive a webhook event
-    await probot.receive({ id: 'event-id1', name: eventName, payload })
+    await probot.receive({ name: eventName, payload })
 
     expect(nock.isDone()).toEqual(true)
   }
@@ -369,7 +369,7 @@ describe('project-bot integration tests', () => {
     }
 
     // Receive a webhook event
-    await probot.receive({ id: 'event-id1', name: eventName, payload })
+    await probot.receive({ name: eventName, payload })
 
     if (!nock.isDone()) {
       console.error(nock.pendingMocks())
@@ -412,7 +412,7 @@ describe('project-bot integration tests', () => {
     }
 
     // Receive a webhook event
-    await probot.receive({ id: 'event-id1', name: eventName, payload })
+    await probot.receive({ name: eventName, payload })
 
     if (!nock.isDone()) {
       console.error(nock.pendingMocks())
