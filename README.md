@@ -1,6 +1,11 @@
 # project-bot
 
-Do you like the idea of [GitHub's Project Automation feature](https://github.com/blog/2458-keep-your-project-boards-up-to-date-automatically) but find it lacking? It will only add a new Issue or Pull Request once you have manually assigned it to a Project. 
+[![code coverage][coverage-image]][coverage-url]
+[![travis status][travis-image]][travis-url]
+[![dependency status][dependency-image]][dependency-url]
+[![dev dependency status][dev-dependency-image]][dev-dependency-url]
+
+Do you like the idea of [GitHub's Project Automation feature](https://github.com/blog/2458-keep-your-project-boards-up-to-date-automatically) but find it lacking?
 
 This bot will **automatically** _add_ new Issues or Pull Requests to a Project board based on specially formatted Cards in each Column of a Project. It also allows you to customize the rules for _moving_ Issues between Columns.
 
@@ -101,3 +106,12 @@ After an item has been added to a project board (manually or by the previous rul
 ## Screencap
 
 ![automatic-project-columns](https://user-images.githubusercontent.com/253202/37872089-ad7d21ea-2fcd-11e8-81ba-7f3977c102cf.gif)
+
+[coverage-image]: https://img.shields.io/codecov/c/github/philschatz/project-bot.svg
+[coverage-url]: https://codecov.io/gh/philschatz/project-bot
+[travis-image]: https://api.travis-ci.com/philschatz/project-bot.svg
+[travis-url]: https://travis-ci.com/philschatz/project-bot
+[dependency-image]: https://img.shields.io/david/philschatz/project-bot.svg
+[dependency-url]: https://david-dm.org/philschatz/project-bot
+[dev-dependency-image]: https://img.shields.io/david/dev/philschatz/project-bot.svg
+[dev-dependency-url]: https://david-dm.org/philschatz/project-bot?type=dev
