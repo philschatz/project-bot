@@ -1,5 +1,7 @@
 # project-bot
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/philschatz/project-bot.svg)](https://greenkeeper.io/)
+
 Do you like the idea of [GitHub's Project Automation feature](https://github.com/blog/2458-keep-your-project-boards-up-to-date-automatically) but find it lacking? It will only add a new Issue or Pull Request once you have manually assigned it to a Project. 
 
 This bot will **automatically** _add_ new Issues or Pull Requests to a Project board based on specially formatted Cards in each Column of a Project. It also allows you to customize the rules for _moving_ Issues between Columns.
