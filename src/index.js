@@ -23,7 +23,7 @@ async function retryQuery (context, query, args) {
 const PROJECT_FRAGMENT = `
   name
   id
-  columns(first: 10) {
+  columns(first: 50) {
     totalCount
     nodes {
       id
