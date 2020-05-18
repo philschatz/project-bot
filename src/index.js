@@ -9,7 +9,7 @@ async function sleep (ms) {
     }, ms)
   })
 }
-// Often, there is a delay between the webhook firing and GaphQL updating
+// Often, there is a delay between the webhook firing and GraphQL updating
 async function retryQuery (context, query, args) {
   try {
     return await context.github.graphql(query, args)
