@@ -1,0 +1,14 @@
+format_version: 2
+stack_name: project-bot
+resources_I_provision:
+  lambda_functions:
+    - function_name: webhook-receiver
+      lambda_code_path: ./
+      handler: src/handler.probot
+      runtime: nodejs10.x
+      environment_variables:
+        - GH_PRIVATE_KEY_PATH: /janus/project-bot/gh-webhook-private-key
+        - GH_WEBHOOK_SECRET_PATH: /janus/project-bot/gh-webhook-secret
+        - GH_APP_ID_PATH: /janus/project-bot/gh-app-id
+      triggers:
+        - api_gateway_name: webhook-receiver

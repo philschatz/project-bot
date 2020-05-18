@@ -1,0 +1,53 @@
+version: 2.1
+
+orbs:
+  sb: cambiahealth/stack-build@1
+  node: circleci/node@1.1.4
+  js: cambiahealth/janus-javascript@1
+jobs:
+  npm-install:
+    executor:
+      name: node/default
+      tag: '10.16'
+    steps:
+      - checkout
+      - js/configure-npm
+        #Pull in cached npm dependencies. See https://circleci.com/orbs/registry/orb/circleci/node for more config details
+      - node/with-cache:
+          steps:
+            - run: |
+                npm install
+workflows:
+  version: 2
+  janus-pipeline:
+    jobs:
+      - sb/preflight
+      - sb/normalize:
+          context: cambia
+          requires:
+            - sb/preflight
+      - npm-install:
+          context: cambia
+      - sb/stack-formation:
+          context: cambia
+          requires:
+            - sb/normalize
+            - npm-install
+          checkout: false
+          pre-steps:
+            - checkout
+            - restore_cache:
+                keys:
+                  - node-deps-v1-{{ .Branch }}-{{ checksum "package.json" }}
+            - run:
+                name: Move deps
+                description: "'npm install' places node_modules dir in /home/circleci/project, while this job runs in /root/project. Move dependencies from restored cache"
+                command: "mv /home/circleci/project/node_modules /root/project/node_modules"
+      - sb/publish-artifacts:
+          context: project-bot
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - sb/stack-formation
