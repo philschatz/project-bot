@@ -71,6 +71,15 @@ To add items to the project board, you have these two rules:
 - `new_issue`: When an Issue is created (optionally, a space-separated set of repo names)
 - `new_pullrequest`: When a Pull Request is created (optionally, a space-separated set of repo names)
 
+### Example automation card
+The following will add issues and pull requests from repo1 and repo2 to the project (note the lack of the org prefix)
+```
+###### Automation Rules
+- `new_issue` **repo1** **repo2**
+- `new_pullrequest` **repo1** **repo2**
+```
+
+
 ## Move items
 
 After an item has been added to a project board (manually or by the previous rules) it can be moved to another column by one of the following rules:
