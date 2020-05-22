@@ -1,6 +1,6 @@
 const { serverless } = require('@probot/serverless-lambda')
 const AWS = require('aws-sdk');
-const appFn = require('./src/index')
+const appFn = require('./index')
 
 const ssm = new AWS.SSM();
 const region = process.env.AWS_REGION
