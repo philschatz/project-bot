@@ -2,6 +2,9 @@ function ALWAYS_TRUE () { return true }
 
 module.exports = [
   { ruleName: 'edited_issue', webhookName: 'issues.edited', ruleMatcher: ALWAYS_TRUE },
+  { ruleName: 'comment_issue_created', webhookName: 'issue_comment.created', ruleMatcher: ALWAYS_TRUE },
+  { ruleName: 'comment_issue_edited', webhookName: 'issue_comment.edited', ruleMatcher: ALWAYS_TRUE },
+  { ruleName: 'comment_issue_deleted', webhookName: 'issue_comment.deleted', ruleMatcher: ALWAYS_TRUE },
   { ruleName: 'demilestoned_issue', webhookName: 'issues.demilestoned', ruleMatcher: ALWAYS_TRUE },
   { ruleName: 'milestoned_issue', webhookName: 'issues.milestoned', ruleMatcher: ALWAYS_TRUE },
   { ruleName: 'reopened_pullrequest', webhookName: 'pull_request.reopened', ruleMatcher: ALWAYS_TRUE },
