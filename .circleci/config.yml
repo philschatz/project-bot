@@ -49,11 +49,7 @@ workflows:
           requires:
             - sb/normalize
       - sb/publish-artifacts:
-          context: project-bot
-          filters:
-            branches:
-              only:
-                - master
+          context: project-bot  
           requires:
             - sb/stack-formation
             - sb/stack-review

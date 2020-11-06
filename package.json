@@ -28,8 +28,9 @@
     "collectCoverage": true
   },
   "dependencies": {
-    "commonmark": "^0.29.0",
     "@probot/serverless-lambda": "^0.5.0",
+    "acorn": "^6.4.2",
+    "commonmark": "^0.29.0",
     "probot": "^9.11.3"
   },
   "devDependencies": {
