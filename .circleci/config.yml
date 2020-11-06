@@ -50,6 +50,10 @@ workflows:
             - sb/normalize
       - sb/publish-artifacts:
           context: project-bot
+          filters:
+            branches:	
+              only:	
+                - master          
           requires:
             - sb/stack-formation
             - sb/stack-review
