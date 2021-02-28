@@ -11,7 +11,7 @@ const commonmarkParser = new commonmark.Parser()
 // - `added_label` **wontfix**
 // - `new_pullrequest` **foo-bar** **test**
 // ```
-function parseMarkdown (card) {
+function parseMarkdown(card) {
   if (!card.note) {
     return [] // no Rules
   }
@@ -36,7 +36,10 @@ function parseMarkdown (card) {
         }
         // Try splitting up the text (backwards-compatibility)
         if (args.length === 0 && node.next && node.next.literal) {
-          args = node.next.literal.trim().split(' ').map((arg) => arg.trim())
+          args = node.next.literal
+            .trim()
+            .split(' ')
+            .map((arg) => arg.trim())
         }
         parsedRules.push({ ruleName: node.literal, ruleArgs: args })
       }
@@ -46,7 +49,7 @@ function parseMarkdown (card) {
 }
 
 // For parse out all the Automation Rules from Cards in a Project
-module.exports = function extractAutomationRules (projects) {
+module.exports = function extractAutomationRules(projects) {
   const automationRules = []
 
   // Use a Map to deduplicate because .firstCards and .lastCards could be the same Card
@@ -68,7 +71,7 @@ module.exports = function extractAutomationRules (projects) {
       automationRules.push({
         column,
         ruleName: r.ruleName,
-        ruleArgs: r.ruleArgs
+        ruleArgs: r.ruleArgs,
       })
     })
   })

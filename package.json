@@ -1,26 +1,29 @@
 {
-  "name": "project-bot",
-  "version": "2.0.5",
-  "description": "Add new Issues and PullRequests to a GitHub Project Board",
+  "name": "project-bot-next",
+  "version": "1.0.1",
+  "description": "Automate Issues and PullRequests to a GitHub Project Board",
   "main": "src/index.js",
   "scripts": {
     "start": "probot run ./src/index.js",
     "lint": "standard --fix",
     "test": "jest",
     "posttest": "standard",
-    "test:fix": "jest --updateSnapshot && standard --fix"
+    "test:fix": "jest --updateSnapshot && standard --fix",
+    "gc": "pretty-quick --staged && gitmoji -c",
+    "gca": "git add . && yarn gc",
+    "gcap": "yarn gca && git push"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/philschatz/project-bot.git"
+    "url": "git+https://github.com/MarkLyck/project-bot.git"
   },
-  "author": "Philip Schatz",
+  "author": "Mark Lyck",
   "bugs": {
-    "url": "https://github.com/philschatz/project-bot/issues"
+    "url": "https://github.com/MarkLyck/project-bot/issues"
   },
-  "homepage": "https://github.com/philschatz/project-bot#readme",
+  "homepage": "https://github.com/MarkLyck/project-bot#readme",
   "now": {
-    "alias": "project-bot",
+    "alias": "project-bot-next",
     "dotenv": ".env"
   },
   "jest": {
@@ -32,8 +35,11 @@
     "probot": "^9.2.20"
   },
   "devDependencies": {
+    "gitmoji-cli": "3.3.0",
     "jest": "^24.8.0",
     "nock": "^10.0.6",
+    "prettier": "^2.2.1",
+    "pretty-quick": "3.1.0",
     "smee-client": "^1.1.0",
     "standard": "^13.1.0"
   }

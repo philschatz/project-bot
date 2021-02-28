@@ -1,0 +1,12 @@
+# Ignore artifacts:
+build
+public
+
+# dev
+yarn.lock
+package-lock.json
+coverage
+.vercel
+.node_modules
+CHANGELOG.md
+*.log
