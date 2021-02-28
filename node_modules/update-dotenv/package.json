@@ -1,0 +1,35 @@
+{
+  "name": "update-dotenv",
+  "version": "1.1.1",
+  "description": "Write updates to a .env file",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest && standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bkeepers/update-dotenv.git"
+  },
+  "keywords": [
+    "dotenv"
+  ],
+  "author": "Brandon Keepers <bkeepers@github.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bkeepers/update-dotenv/issues"
+  },
+  "homepage": "https://github.com/bkeepers/update-dotenv#readme",
+  "devDependencies": {
+    "dotenv": "^6.0.0",
+    "jest": "^23.5.0",
+    "standard": "^11.0.1"
+  },
+  "peerDependencies": {
+    "dotenv": "*"
+  },
+  "standard": {
+    "env": [
+      "jest"
+    ]
+  }
+}

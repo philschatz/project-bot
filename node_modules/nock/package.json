@@ -1,0 +1,74 @@
+{
+  "name": "nock",
+  "description": "HTTP server mocking and expectations library for Node.js",
+  "tags": [
+    "Mock",
+    "HTTP",
+    "testing",
+    "isolation"
+  ],
+  "version": "10.0.6",
+  "author": "Pedro Teixeira <pedro.teixeira@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nock/nock.git"
+  },
+  "bugs": {
+    "url": "http://github.com/nock/nock/issues"
+  },
+  "engines": {
+    "node": ">= 6.0"
+  },
+  "main": "./index",
+  "dependencies": {
+    "chai": "^4.1.2",
+    "debug": "^4.1.0",
+    "deep-equal": "^1.0.0",
+    "json-stringify-safe": "^5.0.1",
+    "lodash": "^4.17.5",
+    "mkdirp": "^0.5.0",
+    "propagate": "^1.0.0",
+    "qs": "^6.5.1",
+    "semver": "^5.5.0"
+  },
+  "devDependencies": {
+    "acorn": "^6.0.4",
+    "async": "^2.6.0",
+    "aws-sdk": "^2.202.0",
+    "coveralls": "^3.0.0",
+    "eslint": "^5.0.0",
+    "hyperquest": "^2.1.3",
+    "isomorphic-fetch": "^2.2.0",
+    "lolex": "^3.0.0",
+    "markdown-toc": "^1.2.0",
+    "needle": "^2.2.2",
+    "nyc": "^12.0.1",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "restify-clients": "^2.2.0",
+    "rimraf": "^2.6.2",
+    "semantic-release": "^16.0.0-beta.13",
+    "superagent": "^4.0.0",
+    "tap": "^12.0.0"
+  },
+  "scripts": {
+    "unit": "tap --coverage ./tests/test_*.js",
+    "pretest": "npm run -s lint",
+    "test": "npm run -s unit",
+    "coverage": "tap --coverage-report=html && open coverage/lcov-report/index.html",
+    "coverage:upload": "tap --coverage-report=text-lcov | coveralls",
+    "lint": "eslint \"**/*.js\"",
+    "toc": "markdown-toc -i README.md && markdown-toc -i CONTRIBUTING.md ",
+    "semantic-release": "semantic-release"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ],
+    "exclude": [
+      "tests/"
+    ]
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,45 @@
+{
+  "name": "bunyan-format",
+  "version": "0.2.1",
+  "description": "Writable stream that formats bunyan records that are piped into it.",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/thlorenz/bunyan-format.git"
+  },
+  "homepage": "https://github.com/thlorenz/bunyan-format",
+  "dependencies": {
+    "ansistyles": "~0.1.1",
+    "ansicolors": "~0.2.1",
+    "xtend": "~2.1.1"
+  },
+  "devDependencies": {
+    "tap": "~0.4.3",
+    "bunyan": "~0.22.0"
+  },
+  "keywords": [
+    "bunyan",
+    "stream",
+    "log",
+    "logger",
+    "format",
+    "pretty",
+    "color",
+    "style"
+  ],
+  "author": {
+    "name": "Thorsten Lorenz",
+    "email": "thlorenz@gmx.de",
+    "url": "http://thlorenz.com"
+  },
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/thlorenz/bunyan-format/blob/master/LICENSE"
+  },
+  "engine": {
+    "node": ">=0.10"
+  }
+}

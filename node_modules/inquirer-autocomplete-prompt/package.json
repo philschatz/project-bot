@@ -1,0 +1,62 @@
+{
+  "name": "inquirer-autocomplete-prompt",
+  "description": "Autocomplete prompt for inquirer",
+  "version": "1.3.0",
+  "files": [
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mokkabonna/inquirer-autocomplete-prompt.git"
+  },
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org",
+    "access": "public"
+  },
+  "author": "Martin Hansen <martin@martinhansen.no>",
+  "contributors": [
+    "Karl Horky <karl.horky@gmail.com> (https://github.com/karlhorky)"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "eslint": "^6.8.0",
+    "flow-bin": "^0.123.0",
+    "fuzzy": "^0.1.3",
+    "inquirer": "^7.1.0",
+    "lodash": "^4.17.15",
+    "mocha": "^7.1.2",
+    "mocha-lcov-reporter": "^1.3.0",
+    "nyc": "^15.0.1",
+    "prettier": "^2.0.5",
+    "sinon": "^9.0.2"
+  },
+  "dependencies": {
+    "ansi-escapes": "^4.3.1",
+    "chalk": "^4.0.0",
+    "figures": "^3.2.0",
+    "run-async": "^2.4.0",
+    "rxjs": "^6.6.2"
+  },
+  "peerDependencies": {
+    "inquirer": "^5.0.0 || ^6.0.0 || ^7.0.0"
+  },
+  "scripts": {
+    "lint": "npm run prettier:check && npm run eslint",
+    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
+    "eslint": "eslint --report-unused-disable-directives --cache .",
+    "eslint:fix": "npm run eslint -- --fix",
+    "prettier:cli": "prettier \"**/*.js\" \"**/*.md\"",
+    "prettier:check": "npm run prettier:cli -- --check",
+    "prettier:fix": "npm run prettier:cli -- --write",
+    "pretest": "npm run-script lint && flow",
+    "test": "nyc --reporter=lcov mocha test/spec --scripts-prepend-node-path",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "develop": "nodemon --exec nyc --reporter=lcov mocha test/spec --scripts-prepend-node-path",
+    "posttest": "nyc check-coverage --statements 85 --branches 85 --functions 85 --lines 85 && rm -rf coverage"
+  }
+}
