@@ -75,7 +75,7 @@ module.exports = (robot) => {
                     url
                     ${''/* Projects can be attached to an Organization... */}
                     ... on Organization {
-                      projects(first: 10, states: [OPEN]) {
+                      projects(first: 50, states: [OPEN]) {
                         nodes {
                           ${PROJECT_FRAGMENT}
                         }
@@ -83,7 +83,7 @@ module.exports = (robot) => {
                     }
                   }
                   ${''/* ... or on a Repository */}
-                  projects(first: 10, states: [OPEN]) {
+                  projects(first: 50, states: [OPEN]) {
                     nodes {
                       ${PROJECT_FRAGMENT}
                     }
