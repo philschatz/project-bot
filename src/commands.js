@@ -93,6 +93,7 @@ module.exports = [
     }
   },
   {
+    createsACard: true,
     ruleName: 'added_label',
     webhookName: 'issues.labeled',
     ruleMatcher: async function (logger, context, ruleArgs) {
@@ -101,6 +102,7 @@ module.exports = [
     }
   },
   {
+    createsACard: true,
     ruleName: 'added_label',
     webhookName: 'pull_request.labeled',
     ruleMatcher: async function (logger, context, ruleArgs) {
