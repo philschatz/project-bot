@@ -28,8 +28,10 @@
     "collectCoverage": true
   },
   "dependencies": {
+    "@probot/serverless-lambda": "^0.5.0",
+    "acorn": "^6.4.2",
     "commonmark": "^0.29.0",
-    "probot": "^9.2.20"
+    "probot": "^9.11.3"
   },
   "devDependencies": {
     "jest": "^24.8.0",

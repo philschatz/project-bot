@@ -24,7 +24,7 @@ To create an Automation Card, create a Card in a Project like this:
 ```md
 ###### Automation Rules
 
-<!-- Documentation: https://github.com/philschatz/project-bot -->
+<!-- Documentation: https://github.com/cambiahealth/project-bot -->
 
 - `assigned_issue`
 - `closed_issue`
@@ -70,6 +70,15 @@ To add items to the project board, you have these two rules:
 
 - `new_issue`: When an Issue is created (optionally, a space-separated set of repo names)
 - `new_pullrequest`: When a Pull Request is created (optionally, a space-separated set of repo names)
+
+### Example automation card
+The following will add issues and pull requests from repo1 and repo2 to the project (note the lack of the org prefix)
+```
+###### Automation Rules
+- `new_issue` **repo1** **repo2**
+- `new_pullrequest` **repo1** **repo2**
+```
+
 
 ## Move items
 
