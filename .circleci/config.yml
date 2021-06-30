@@ -8,7 +8,7 @@ jobs:
   npm-install:
     executor:
       name: node/default
-      tag: '12.20.1'
+      tag: '10.16'
     steps:
       - checkout
       - js/configure-npm
@@ -37,13 +37,13 @@ workflows:
           checkout: false
           pre-steps:
             - checkout
-#            - restore_cache:
-#                keys:
-#                  - node-deps-v1-{{ .Branch }}-{{ checksum "package.json" }}
-#            - run:
-#                name: Move deps
-#                description: "'npm install' places node_modules dir in /home/circleci/project, while this job runs in /root/project. Move dependencies from restored cache"
-#                command: "mv /home/circleci/project/node_modules /root/project/node_modules"
+            - restore_cache:
+                keys:
+                  - node-deps-v1-{{ .Branch }}-{{ checksum "package.json" }}
+            - run:
+                name: Move deps
+                description: "'npm install' places node_modules dir in /home/circleci/project, while this job runs in /root/project. Move dependencies from restored cache"
+                command: "mv /home/circleci/project/node_modules /root/project/node_modules"
       - sb/stack-review:
           context: cambia
           requires:
