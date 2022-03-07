@@ -1,3 +1,20 @@
 
 .env
 coverage/
+
+### Development Tools ###
+.idea
+*.iws
+*.iml
+*.ipr
+.vscode
+
+### macOS template
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node.js
+node_modules
+.npmrc
