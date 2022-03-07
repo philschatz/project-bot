@@ -5,7 +5,7 @@ resources_I_provision:
     - function_name: webhook-receiver
       lambda_code_path: ./
       handler: src/handler.probot
-      runtime: nodejs10.x
+      runtime: nodejs14.x
       environment_variables:
         - GH_PRIVATE_KEY_PATH: /janus/project-bot/gh-webhook-private-key
         - GH_WEBHOOK_SECRET_PATH: /janus/project-bot/gh-webhook-secret
