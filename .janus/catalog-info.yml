@@ -1,0 +1,21 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  annotations:
+    circleci.com/project-slug: github/cambiahealth/project-bot
+    github.com/project-slug: cambiahealth/project-bot
+    janus/email-dl: DL-JanusDevOps@Cambiahealth.com
+    janus/slack-channel: platform-infrastructure
+  description: This bot will automatically add new Issues or Pull Requests to a Project
+    board based on specially formatted Cards in each Column of a Project.
+  labels:
+    service-tier: '5'
+  name: project-bot
+  tags:
+  - JavaScript
+  - Shell
+  - lambda
+spec:
+  lifecycle: prd
+  owner: platform-infrastructure
+  type: lambda
