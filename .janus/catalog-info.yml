@@ -12,8 +12,8 @@ metadata:
     service-tier: '5'
   name: project-bot
   tags:
-  - JavaScript
-  - Shell
+  - javascript
+  - shell
   - lambda
 spec:
   lifecycle: prd
